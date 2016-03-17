@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+    Layout for main activity (screen). Here user can choose to send message or to check received
+    messages from other devices. For that there are two tabs.
+    -On the top of screen there is ID of this device which is unique for all devices.
+    -Next there is toolbar for choosing operation (sending or reading messages).
+    F-or sending messages firstly, user needs to choose which sensor's data will be sent, for that
+    there is dropdown list with check option. If user wants to recheck which sensor his device has,
+    he can do that by pressing button for that action.
+    -For every checked sensor, user can see its current data (for that there is another tab view).
+    -Finally, user choose encryption for message and the destination device (there is local database
+    with frequently used destinations). For that there is EditText and Button.
+    -Before sending message user can preview it (two buttons for that).
+-->
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:scrollbars="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/text_device_id"/>
+
+            <TextView
+                android:id="@+id/tvThingID"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="end"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorThingIdText"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_select_sensors"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.guna.libmultispinner.MultiSelectionSpinner
+                android:id="@+id/spDeviceSensors"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:prompt="@string/prompt_spinner_sensors"
+                android:layout_weight="3"/>
+
+            <Button
+                android:id="@+id/bCheckSensors"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/check_sensors"/>
+        </LinearLayout>
+
+
+        <TabHost
+            android:background="@color/colorTabLayoutBackground"
+            android:id="@+id/tabhost"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/activity_main_tab_host_height">
+
+            <TabWidget
+                android:id="@android:id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                />
+
+            <FrameLayout
+                android:id="@android:id/tabcontent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </FrameLayout>
+        </TabHost>
+
+        <TextView
+            android:id="@+id/tvSensorData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/colorTVSensorDataBackground"
+            android:text="@string/text_sensor_data_default"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:textColor="@color/colorTVSensorDataTextColor"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_choose_encryption"/>
+
+        <Spinner
+            android:id="@+id/spEncryption"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/encryption_array"
+            android:prompt="@string/prompt_spinner_encryption"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_choose_send_mode"/>
+
+        <Spinner
+            android:id="@+id/spSendMode"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:entries="@array/send_mode_array"
+            android:prompt="@string/prompt_spinner_send_mode"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_destination"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/etDestination"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="5"
+                android:hint="@string/hint_et_destination"
+                android:inputType="textUri"/>
+
+            <Button
+                android:id="@+id/bChooseDestination"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2"
+                android:text="@string/text_choose_destination"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="@dimen/activity_horizontal_margin">
+
+            <Button
+                android:id="@+id/bPreviewMessage"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/text_button_preview_message"/>
+
+            <Button
+                android:id="@+id/bSendMessage"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/text_button_send_message"/>
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/text_respond_service"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/bStopService"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="@string/text_button_stop_service"/>
+
+            <Button
+                android:id="@+id/bStartService"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:enabled="false"
+                android:text="@string/text_button_start_service"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>
