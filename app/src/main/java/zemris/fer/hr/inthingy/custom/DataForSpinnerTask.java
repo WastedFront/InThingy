@@ -18,7 +18,7 @@ import zemris.fer.hr.inthingy.utils.Constants;
 /**
  * Task for getting all sensors that device has and populate appropriate spinner with their names.
  */
-public class PopulateMultiSelectionSpinnerTask extends AsyncTask<String, Void, String> {
+public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
 
     /** Constant representing OK result. */
     private static final String RESULT_OK = "OK";
@@ -39,7 +39,7 @@ public class PopulateMultiSelectionSpinnerTask extends AsyncTask<String, Void, S
      * @param multiSelectionSpinner
      *         multi selection spinner which will be populated with data
      */
-    public PopulateMultiSelectionSpinnerTask(Context mContext, MultiSelectionSpinner multiSelectionSpinner) {
+    public DataForSpinnerTask(Context mContext, MultiSelectionSpinner multiSelectionSpinner) {
         this.mContext = mContext;
         this.multiSelectionSpinner = multiSelectionSpinner;
     }

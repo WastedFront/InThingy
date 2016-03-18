@@ -24,6 +24,10 @@
             android:name=".gps.GPSLocator"
             android:process=":gps_locator"
             android:exported="false"/>
+        <service
+            android:name=".sensors.DeviceSensors"
+            android:process=":sensor_reader"
+            android:exported="false"/>
         <provider
             android:name="com.gdubina.multiprocesspreferences.MultiprocessPreferences"
             android:authorities="@string/multiprocess_preferences_authority"

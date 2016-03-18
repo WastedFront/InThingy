@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,9 +21,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import zemris.fer.hr.inthingy.custom.DataForSpinnerTask;
 import zemris.fer.hr.inthingy.custom.EmptyTabFactory;
-import zemris.fer.hr.inthingy.custom.PopulateMultiSelectionSpinnerTask;
 import zemris.fer.hr.inthingy.gps.GPSLocator;
+import zemris.fer.hr.inthingy.sensors.DeviceSensors;
 import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
@@ -44,22 +46,30 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private Map<String, String> sensorDataMap;
     /** Multi selection spinner for sensors. */
     private MultiSelectionSpinner spDeviceSensors;
-    /** GPS service Intent. */
+    /** GPS service intent. */
     private Intent gpsService;
+    /** Sensor service intent. */
+    private Intent sensorService;
     /** Unique device ID. */
-    public static final String THING_ID = "1234567890";
+    public String THING_ID;
     /** Default sensor data. */
     private static final String DEFAULT_SENSOR_DATA = "NULL\nNULL\nNULL";
+    /** Empty tab name. */
+    private static final String EMPTY_TAB_TAG = "EMPTY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        THING_ID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         sensorDataMap = new HashMap<>();
         initializeSensorSpinner();
         initializeElements();
         gpsService = new Intent(this, GPSLocator.class);
+        sensorService = new Intent(this, DeviceSensors.class);
+        //run task to populate spinner with proper data
+        (new DataForSpinnerTask(MainActivity.this, spDeviceSensors)).execute();
     }
 
     /**
@@ -106,10 +116,24 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         tabHost.setOnTabChangedListener(new TabHost.OnTabChangeListener() {
             @Override
             public void onTabChanged(String tabId) {
-                String text = "Sensor: " + tabId + "\n" + sensorDataMap.get(tabId);
-                tvSensorData.setText(text);
+                if (!EMPTY_TAB_TAG.equals(tabId)) {
+                    String text = "Sensor: " + tabId + "\n" + sensorDataMap.get(tabId);
+                    tvSensorData.setText(text);
+                }
             }
         });
+        //add some tab
+        addTabHostEmptyTab();
+    }
+
+    /**
+     * Method for creating empty tab for tabhost.
+     */
+    private void addTabHostEmptyTab() {
+        TabHost.TabSpec spec = tabHost.newTabSpec(EMPTY_TAB_TAG);
+        spec.setContent(new EmptyTabFactory(MainActivity.this));
+        spec.setIndicator(EMPTY_TAB_TAG);
+        tabHost.addTab(spec);
     }
 
     @Override
@@ -117,14 +141,21 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         super.onResume();
         //check location permission
         checkLocationPermissions();
-        //run task to populate spinner with proper data
-        (new PopulateMultiSelectionSpinnerTask(MainActivity.this, spDeviceSensors)).execute();
+        startService(sensorService);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         stopService(gpsService);
+        stopService(sensorService);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        //delete shared preferences; no need for apply()
+        MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext()).edit().clear();
     }
 
     /**
@@ -164,16 +195,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     //
     @Override
     public void selectedIndices(List<Integer> indices) {
-
+        //empty stuff
     }
-
     @Override
     public void selectedStrings(final List<String> strings) {
         //first clear all tabHost
         tabHost.clearAllTabs();
         //clear text view for sensor data
-        tvSensorData.setText(DEFAULT_SENSOR_DATA);
-        //shared preferences
+        tvSensorData.setText(R.string.text_sensor_data_default);
         if (strings != null && strings.size() > 0) {
             for (int i = 0; i < strings.size(); ++i) {
                 String name = strings.get(i);
@@ -187,8 +216,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 spec.setIndicator(String.valueOf(i + 1));
                 tabHost.addTab(spec);
             }
-        } else {  //make send button disabled (if it is enabled)
+        } else {  //no selection
             bSendMessage.setEnabled(false);
+            addTabHostEmptyTab();
         }
     }
 

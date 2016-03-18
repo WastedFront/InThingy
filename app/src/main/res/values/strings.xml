@@ -3,7 +3,7 @@
     <string name="text_device_id">Device ID:</string>
     <string name="text_select_sensors">Select sensors:</string>
     <string name="check_sensors">CHECK</string>
-    <string name="text_sensor_data_default">\n\n\n\n</string>
+    <string name="text_sensor_data_default"> \n \n \n \n</string>
     <string name="prompt_spinner_sensors">Choose sensors</string>
     <string name="prompt_spinner_encryption">Choose encryption</string>
     <string name="prompt_spinner_send_mode">Choose adapter</string>
@@ -11,7 +11,7 @@
     <string name="text_choose_send_mode">Send ViA:</string>
     <string name="text_destination">Enter destination:</string>
     <string name="text_choose_destination">CHOOSE</string>
-    <string name="hint_et_destination">Enter Thing ID or address</string>
+    <string name="hint_et_destination">Enter IP address</string>
     <string name="text_button_preview_message">PREVIEW</string>
     <string name="text_button_send_message">SEND</string>
     <string name="text_respond_service">Manipulate response service:</string>
