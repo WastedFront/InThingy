@@ -31,7 +31,7 @@ public class DeviceSensors extends Service implements SensorEventListener {
         super.onCreate();
         sensorManager = (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
         for (Sensor sensor : sensorManager.getSensorList(Sensor.TYPE_ALL)) {
-            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_UI);
+            sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
         }
     }
 
@@ -97,7 +97,7 @@ public class DeviceSensors extends Service implements SensorEventListener {
                 valueString.append("\n");
             }
         }
-        while (nameSize != 3) {
+        while (nameSize < 2) {
             nameSize++;
             valueString.append("\n");
         }

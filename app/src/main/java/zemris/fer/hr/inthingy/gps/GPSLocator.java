@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
@@ -34,8 +35,6 @@ public class GPSLocator extends Service {
     private MyLocationListener gpsLocationListener = new MyLocationListener(LocationManager.GPS_PROVIDER);
     /** Network location listener. */
     private MyLocationListener networkLocationListener = new MyLocationListener(LocationManager.NETWORK_PROVIDER);
-    /** Flags for location permissions. */
-    private boolean locationPerm1, locationPerm2;
     /** Flag to check if GPS is enabled. */
     private boolean isGPSEnabled = false;
     /** Flag for checking if network is enabled. */
@@ -57,28 +56,31 @@ public class GPSLocator extends Service {
     @Override
     public void onCreate() {
         initialization();
-        //permission check == It is made in main activity, but still need to have this code here
-        locationPerm1 = ActivityCompat.checkSelfPermission(getApplicationContext(),
+        //permission check
+        boolean locationPerm1 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-        locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
+        boolean locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
         if (locationPerm1 && locationPerm2) {
-            this.stopSelf();
+            Toast.makeText(getApplicationContext(), "Application don't have permission to access location\nIf you want" +
+                    "to get GPS data, please enable permission in Settings", Toast.LENGTH_LONG).show();
         }
         //check which connectivity you can use to get data
-        if (isGPSEnabled) {
+        if (isNetworkEnabled) {
+            Log.e("GPS", "Network enabled");
+            locationManager.requestLocationUpdates(
+                    LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
+                    networkLocationListener);
+        } else if (isGPSEnabled && !locationPerm1 && !locationPerm2) {
             locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
                     gpsLocationListener);
         }
-        if (isNetworkEnabled) {
-            locationManager.requestLocationUpdates(
-                    LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
-                    networkLocationListener);
-        }
+
         //if you can't get data, stop service
-        if (!isGPSEnabled && !isNetworkEnabled) {
-            Toast.makeText(getApplicationContext(), "GPS data can't be accessed.\nPlease turn GPS or Network ON.",
+        if ((!isGPSEnabled || locationPerm1 || locationPerm2) && !isNetworkEnabled) {
+            Toast.makeText(getApplicationContext(), "GPS data can't be accessed.\nPlease turn GPS or Network ON.\n" +
+                            "If Network is ON please check flag in Settings-Security to use Network for location.",
                     Toast.LENGTH_LONG).show();
             stopSelf();
         }
@@ -99,10 +101,12 @@ public class GPSLocator extends Service {
     public void onDestroy() {
         super.onDestroy();
         if (locationManager != null) {
-            locationPerm1 = ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-            locationPerm2 = ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                //do nothing
+            }
             locationManager.removeUpdates(gpsLocationListener);
             locationManager.removeUpdates(networkLocationListener);
         }
@@ -130,7 +134,7 @@ public class GPSLocator extends Service {
             StringBuilder locationString = new StringBuilder();
             locationString.append("Latitude: ").append(location.getLatitude()).append("\u00B0\n")
                     .append("Longitude: ").append(location.getLongitude()).append("\u00B0\n")
-                    .append("Altitude: ").append(location.getAltitude()).append("\u00B0\n");
+                    .append("Altitude: ").append(location.getAltitude()).append("\u00B0");
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
         }
