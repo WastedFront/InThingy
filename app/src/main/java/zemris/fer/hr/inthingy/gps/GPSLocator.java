@@ -29,7 +29,7 @@ public class GPSLocator extends Service {
     /** Constant for location time update interval. */
     private static final int MIN_TIME_BW_UPDATES = 4000; //4 sec
     /** Constant for location move interval. */
-    private static final float MIN_DISTANCE_CHANGE = 50; //50m
+    private static final float MIN_DISTANCE_CHANGE = 50; //50 m
     /** GPS location listener. */
     private MyLocationListener gpsLocationListener = new MyLocationListener(LocationManager.GPS_PROVIDER);
     /** Network location listener. */
@@ -85,7 +85,7 @@ public class GPSLocator extends Service {
     }
 
     /**
-     * Method for initializing some stuff.
+     * Method for initializing location manager and checking if there is gps or network online.
      */
     private void initialization() {
         if (locationManager == null) {

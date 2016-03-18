@@ -44,7 +44,6 @@ public class DeviceSensors extends Service implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
         String value;
-        String unit = "m/s^2";
         switch (event.sensor.getType()) {
             case Sensor.TYPE_MAGNETIC_FIELD:
             case Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
