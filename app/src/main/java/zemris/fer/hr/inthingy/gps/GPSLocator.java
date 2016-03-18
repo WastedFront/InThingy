@@ -119,9 +119,9 @@ public class GPSLocator extends Service {
         public void onLocationChanged(Location location) {
             lastLocation.set(location);
             StringBuilder locationString = new StringBuilder();
-            locationString.append("Latitude: ").append(location.getLatitude()).append("\n")
-                    .append("Longitude: ").append(location.getLongitude()).append("\n")
-                    .append("Altitude: ").append(location.getAltitude());
+            locationString.append("Latitude: ").append(location.getLatitude()).append("\u00B0\n")
+                    .append("Longitude: ").append(location.getLongitude()).append("\u00B0\n")
+                    .append("Altitude: ").append(location.getAltitude()).append("\u00B0\n");
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
         }
