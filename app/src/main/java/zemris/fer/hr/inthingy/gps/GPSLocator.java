@@ -11,6 +11,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
 
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 
@@ -56,6 +57,7 @@ public class GPSLocator extends Service {
     @Override
     public void onCreate() {
         initialization();
+        //permission check == It is made in main activity, but still need to have this code here
         locationPerm1 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
         locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
@@ -63,6 +65,7 @@ public class GPSLocator extends Service {
         if (locationPerm1 && locationPerm2) {
             this.stopSelf();
         }
+        //check which connectivity you can use to get data
         if (isGPSEnabled) {
             locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
@@ -72,6 +75,12 @@ public class GPSLocator extends Service {
             locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
                     networkLocationListener);
+        }
+        //if you can't get data, stop service
+        if (!isGPSEnabled && !isNetworkEnabled) {
+            Toast.makeText(getApplicationContext(), "GPS data can't be accessed.\nPlease turn GPS or Network ON.",
+                    Toast.LENGTH_LONG).show();
+            stopSelf();
         }
     }
 

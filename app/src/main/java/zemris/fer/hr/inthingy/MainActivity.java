@@ -1,6 +1,8 @@
 package zemris.fer.hr.inthingy;
 
 import android.Manifest;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -197,6 +199,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public void selectedIndices(List<Integer> indices) {
         //empty stuff
     }
+
     @Override
     public void selectedStrings(final List<String> strings) {
         //first clear all tabHost
@@ -227,18 +230,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bCheckSensors:
-                //get new values
-                for (String name : spDeviceSensors.getSelectedStrings()) {
-                    String value = MultiprocessPreferences.
-                            getDefaultSharedPreferences(getApplicationContext()).getString(name, DEFAULT_SENSOR_DATA);
-                    sensorDataMap.put(name, value);
-                }
-                if (spDeviceSensors.getSelectedStrings().size() > 0) {
-                    //update value
-                    String tabName = tabHost.getCurrentTabTag();
-                    String text = "Sensor: " + tabName + "\n" + sensorDataMap.get(tabName);
-                    tvSensorData.setText(text);
-                }
+                checkiSensors();
                 break;
             case R.id.bChooseDestination:
                 break;
@@ -260,4 +252,48 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         }
     }
 
+    /**
+     * Method for checking sensors data changes and if services are running or not.
+     * It is used for button bChecksensors.
+     */
+    private void checkiSensors() {
+        //if one of service is stopped, run it again
+        if (!isServiceRunning(GPSLocator.class)) {
+            startService(gpsService);
+        }
+        if (!isServiceRunning(DeviceSensors.class)) {
+            startService(sensorService);
+        }
+        //get new values
+        {
+            for (String name : spDeviceSensors.getSelectedStrings()) {
+                String value = MultiprocessPreferences.
+                        getDefaultSharedPreferences(getApplicationContext()).getString(name, DEFAULT_SENSOR_DATA);
+                sensorDataMap.put(name, value);
+            }
+        }
+        if (spDeviceSensors.getSelectedStrings().size() > 0) {
+            //update value
+            String tabName = tabHost.getCurrentTabTag();
+            String text = "Sensor: " + tabName + "\n" + sensorDataMap.get(tabName);
+            tvSensorData.setText(text);
+        }
+    }
+
+    /**
+     * Method for checking if service is running or not.
+     *
+     * @param serviceClass
+     *         class of the service.
+     * @return true if service is already running, otherwise false.
+     */
+    private boolean isServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
