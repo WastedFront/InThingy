@@ -28,6 +28,10 @@
             android:name=".sensors.DeviceSensors"
             android:process=":sensor_reader"
             android:exported="false"/>
+        <service
+            android:name=".messages.MessageReplyService"
+            android:process=":message_reply_service"
+            android:exported="false"/>
         <provider
             android:name="com.gdubina.multiprocesspreferences.MultiprocessPreferences"
             android:authorities="@string/multiprocess_preferences_authority"

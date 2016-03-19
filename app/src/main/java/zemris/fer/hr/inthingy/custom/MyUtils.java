@@ -4,7 +4,14 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.Map;
+
+import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
  * Utility class which contains some method that are used by multiple activities/services.
@@ -43,6 +50,28 @@ public class MyUtils {
     }
 
     /**
+     * Method for getting IP adress of device if it is connected to the internet.
+     *
+     * @return valid IP address if everything is ok, ERROR if there is exception and there is return null which will never happen
+     */
+    public static String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
+                NetworkInterface networkInterface = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = networkInterface.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+                        return inetAddress.getHostAddress();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            return Constants.STRING_ERROR;
+        }
+        return null;
+    }
+
+    /**
      * Method for creating message with given parameters.
      * Message format is:
      *
@@ -58,6 +87,7 @@ public class MyUtils {
      *         map containing data.
      * @return message in valid format
      */
+
     public static String createMessage(String id, String source, String destination, String encryption, Map<String, String> dataMap) {
         StringBuilder message = new StringBuilder();
 

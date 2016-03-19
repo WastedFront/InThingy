@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
                     String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
                     String destination = etDestination.getText().toString();
-                    String source = "ADsa";
+                    String source = MyUtils.getLocalIpAddress();
                     sendMessage(thingId, source, destination, encryption, sendMode, sensorDataMap);
                 }
                 break;
@@ -344,9 +344,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private void previewMessage() {
         String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
-        String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
         String destination = etDestination.getText().toString();
-        String source = "ABC";
+        String source = MyUtils.getLocalIpAddress();
         String message = MyUtils.createMessage(thingId, source, destination, encryption, sensorDataMap);
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
         builderSingle.setTitle("Message preview:");
