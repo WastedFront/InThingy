@@ -1,14 +1,16 @@
 package zemris.fer.hr.inthingy;
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Patterns;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -45,7 +47,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     /** TextView for displaying sensor data. */
     private TextView tvSensorData;
     /** List of sensors and its data. */
-    private Map<String, String> sensorDataMap;
+    private Map<String, String> sensorDataMap = new HashMap<>();
+    ;
     /** Multi selection spinner for sensors. */
     private MultiSelectionSpinner spDeviceSensors;
     /** Edit text which contains address of destination. */
@@ -69,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         setContentView(R.layout.activity_main);
 
         thingId = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
-        sensorDataMap = new HashMap<>();
         initializeSensorSpinner();
         initializeElements();
         gpsService = new Intent(this, GPSLocator.class);
@@ -109,7 +111,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private void initButtons() {
         int[] buttonIds = new int[]{R.id.bCheckSensors, R.id.bChooseDestination, R.id.bPreviewMessage,
-                R.id.bSendMessage, R.id.bStartService, R.id.bStopService};
+                R.id.bSendMessage};
         for (int buttonId : buttonIds) {
             findViewById(buttonId).setOnClickListener(MainActivity.this);
         }
@@ -166,6 +168,34 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext()).edit().clear();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        //service for automatic message reply
+        if (item.getItemId() == R.id.menuAutoReply) {
+            Drawable offIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_off).getCurrent();
+            Drawable onIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_on);
+            if (item.getIcon().getConstantState().equals(onIcon.getConstantState())) {
+                item.setIcon(offIcon);
+                Toast.makeText(getApplicationContext(), "AutoReply service off", Toast.LENGTH_SHORT).show();
+                if (MyUtils.isServiceRunning(MessageReplyService.class, MainActivity.this)) {
+                    stopService(autoReplyService);
+                }
+            } else {
+                item.setIcon(onIcon);
+                Toast.makeText(getApplicationContext(), "AutoReply service on", Toast.LENGTH_SHORT).show();
+                if (!MyUtils.isServiceRunning(MessageReplyService.class, MainActivity.this)) {
+                    startService(autoReplyService);
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     //
     // HANDLING SPINNER CHECKED INDICES
@@ -225,16 +255,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     sendMessage(thingId, source, destination, encryption, sendMode, sensorDataMap);
                 }
                 break;
-            case R.id.bStopService:
-                findViewById(R.id.bStartService).setEnabled(true);
-                findViewById(R.id.bStopService).setEnabled(false);
-                stopService(autoReplyService);
-                break;
-            case R.id.bStartService:
-                findViewById(R.id.bStopService).setEnabled(true);
-                findViewById(R.id.bStartService).setEnabled(false);
-                startService(autoReplyService);
-                break;
             default:
                 //some error
                 break;
@@ -243,6 +263,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     /**
      * Method for sending message with given parameters.
+     * It checks if device is connected to the Internet or not.
      *
      * @param thingId
      *         id of device which is sending message
@@ -260,6 +281,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private boolean sendMessage(String thingId, String source, String destination,
                                 String encryption, String sendMode, Map<String, String> dataMap) {
+        if (!MyUtils.isNetworkAvailable(MainActivity.this)) {
+            Toast.makeText(MainActivity.this, "You aren't connected to the Internet.\nAbort!", Toast.LENGTH_LONG).show();
+            return false;
+        }
         String message = MyUtils.createMessage(thingId, source, destination, encryption, dataMap);
 
         return false;
@@ -341,10 +366,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private void checkSensors() {
         //if one of service is stopped, run it again
-        if (!isServiceRunning(GPSLocator.class)) {
+        if (!MyUtils.isServiceRunning(GPSLocator.class, MainActivity.this)) {
             startService(gpsService);
         }
-        if (!isServiceRunning(DeviceSensors.class)) {
+        if (!MyUtils.isServiceRunning(DeviceSensors.class, MainActivity.this)) {
             startService(sensorService);
         }
         //get new values
@@ -361,20 +386,4 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         }
     }
 
-    /**
-     * Method for checking if service is running or not.
-     *
-     * @param serviceClass
-     *         class of the service.
-     * @return true if service is already running, otherwise false.
-     */
-    private boolean isServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

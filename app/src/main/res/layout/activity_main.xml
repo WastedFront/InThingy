@@ -172,32 +172,5 @@
                 android:enabled="false"
                 android:text="@string/text_button_send_message"/>
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/text_respond_service"/>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <Button
-                android:id="@+id/bStopService"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:text="@string/text_button_stop_service"/>
-
-            <Button
-                android:id="@+id/bStartService"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:enabled="false"
-                android:text="@string/text_button_start_service"/>
-        </LinearLayout>
-
     </LinearLayout>
 </ScrollView>
