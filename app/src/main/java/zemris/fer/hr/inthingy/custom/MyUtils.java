@@ -2,6 +2,7 @@ package zemris.fer.hr.inthingy.custom;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.widget.Toast;
 
@@ -12,6 +13,7 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.Map;
 
+import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.communication.SendToServerTask;
 import zemris.fer.hr.inthingy.utils.Constants;
 
@@ -119,7 +121,7 @@ public class MyUtils {
     public static boolean sendMessage(Context context, String thingId, String source, String destination,
                                       String encryption, String sendMode, Map<String, String> dataMap) {
         if (!isNetworkAvailable(context)) {
-            Toast.makeText(context, "You aren't connected to the Internet.\nAbort!", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, Resources.getSystem().getString(R.string.error_no_internet_conn), Toast.LENGTH_LONG).show();
             return false;
         }
         String message = MyUtils.createMessage(thingId, source, destination, encryption, dataMap);

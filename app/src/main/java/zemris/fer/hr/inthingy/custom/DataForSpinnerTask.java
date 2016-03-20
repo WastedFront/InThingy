@@ -3,6 +3,7 @@ package zemris.fer.hr.inthingy.custom;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
@@ -13,6 +14,7 @@ import com.guna.libmultispinner.MultiSelectionSpinner;
 import java.util.ArrayList;
 import java.util.List;
 
+import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
@@ -20,8 +22,6 @@ import zemris.fer.hr.inthingy.utils.Constants;
  */
 public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
 
-    /** Constant representing OK result. */
-    private static final String RESULT_OK = "OK";
     /** Progress dialog. */
     private ProgressDialog progressDialog;
     /** List for sensorNames. */
@@ -49,7 +49,7 @@ public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
         super.onPreExecute();
         sensorNames = new ArrayList<>();
         progressDialog = new ProgressDialog(mContext);
-        progressDialog.setMessage("Finding sensors...");
+        progressDialog.setMessage(Resources.getSystem().getString(R.string.text_finding_sensors));
         progressDialog.setIndeterminate(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
@@ -65,7 +65,7 @@ public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
         }
         //add GPS
         sensorNames.add(Constants.GPS_SENSOR_NAME);
-        return RESULT_OK;
+        return Constants.STRING_OK;
     }
 
     @Override
@@ -74,11 +74,11 @@ public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
         if (progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        if (RESULT_OK.equals(result)) {
+        if (Constants.STRING_OK.equals(result)) {
             multiSelectionSpinner.setItems(sensorNames);
-            Toast.makeText(mContext, "All sensors checked", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, R.string.text_all_sensors_checked, Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(mContext, "Error while checking sensors", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, R.string.error_checking_sensors, Toast.LENGTH_SHORT).show();
         }
 
     }

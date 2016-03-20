@@ -270,16 +270,16 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private boolean checkAllParameters() {
         if (sensorDataMap.isEmpty()) {
-            Toast.makeText(MainActivity.this, "Please choose sensor's which data ypu want to send!",
+            Toast.makeText(MainActivity.this, R.string.error_no_sensor_selected,
                     Toast.LENGTH_SHORT).show();
             return false;
         }
         String destination = etDestination.getText().toString();
         if ("".equals(destination)) {
-            Toast.makeText(MainActivity.this, "Please enter or select destination!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.error_no_destination, Toast.LENGTH_SHORT).show();
             return false;
         } else if (!Patterns.IP_ADDRESS.matcher(destination).matches()) {
-            Toast.makeText(MainActivity.this, "Invalid address format!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.error_invalid_adress_fromat, Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
@@ -290,12 +290,12 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private void chooseDestination() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle("Select destination:");
+        dialogBuilder.setTitle(R.string.text_select_destination);
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice);
         //some adresses
         arrayAdapter.add("192.168.1.1");
 
-        dialogBuilder.setNegativeButton("CANCEL", new DialogInterface.OnClickListener() {
+        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -319,13 +319,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         String destination = etDestination.getText().toString();
         String source = MyUtils.getLocalIpAddress();
         if (Constants.STRING_ERROR.equals(source)) {
-            Toast.makeText(MainActivity.this, "Your IP adress couldn't be found.\nAbort!", Toast.LENGTH_LONG).show();
+            Toast.makeText(MainActivity.this, R.string.error_cant_get_ip, Toast.LENGTH_LONG).show();
             return;
         }
         String message = MyUtils.createMessage(thingId, source, destination, encryption, sensorDataMap);
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
-        builderSingle.setTitle("Message preview:");
-        builderSingle.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builderSingle.setTitle(R.string.text_button_preview_message);
+        builderSingle.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -356,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         if (spDeviceSensors.getSelectedStrings().size() > 0) {
             //update value
             String tabName = tabHost.getCurrentTabTag();
-            String text = "Sensor: " + tabName + "\n" + sensorDataMap.get(tabName);
+            String text = R.string.name_sensor + ": " + tabName + "\n" + sensorDataMap.get(tabName);
             tvSensorData.setText(text);
         }
     }

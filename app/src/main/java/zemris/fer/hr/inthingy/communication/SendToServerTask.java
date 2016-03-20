@@ -15,7 +15,7 @@ import zemris.fer.hr.inthingy.utils.Constants;
 public class SendToServerTask extends AsyncTask<String, String, String> {
 
     /** Variable representing client. */
-    Socket client;
+    private Socket client;
     /** Constant for prt which will be used. */
     private static final int PORT = 5200;
 

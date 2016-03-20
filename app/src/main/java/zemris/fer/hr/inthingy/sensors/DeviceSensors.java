@@ -3,6 +3,7 @@ package zemris.fer.hr.inthingy.sensors;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -11,6 +12,8 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
+
+import zemris.fer.hr.inthingy.R;
 
 /**
  * Class for handling sensor data.
@@ -59,19 +62,19 @@ public class DeviceSensors extends Service implements SensorEventListener {
                 value = makeValueString(new String[]{"x", "y", "z"}, "m/s\u00B2", event.values);
                 break;
             case Sensor.TYPE_LIGHT:
-                value = makeValueString(new String[]{"Illumination"}, "lx", event.values);
+                value = makeValueString(new String[]{Resources.getSystem().getString(R.string.illumination)}, "lx", event.values);
                 break;
             case Sensor.TYPE_PROXIMITY:
-                value = makeValueString(new String[]{"Proximity"}, "cm", event.values);
+                value = makeValueString(new String[]{Resources.getSystem().getString(R.string.proximity)}, "cm", event.values);
                 break;
             case Sensor.TYPE_AMBIENT_TEMPERATURE:
-                value = makeValueString(new String[]{"Temperature"}, "\u2103", event.values);
+                value = makeValueString(new String[]{Resources.getSystem().getString(R.string.temperature)}, "\u2103", event.values);
                 break;
             case Sensor.TYPE_PRESSURE:
-                value = makeValueString(new String[]{"Pressure"}, "hPa", event.values);
+                value = makeValueString(new String[]{Resources.getSystem().getString(R.string.pressure)}, "hPa", event.values);
                 break;
             default:
-                value = makeValueString(new String[]{"Error"}, "", event.values);
+                value = makeValueString(new String[]{Resources.getSystem().getString(R.string.error)}, "", event.values);
         }
         MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                 .edit().putString(event.sensor.getName(), value).apply();

@@ -5,17 +5,18 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 
+import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
@@ -62,12 +63,10 @@ public class GPSLocator extends Service {
         boolean locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
         if (locationPerm1 && locationPerm2) {
-            Toast.makeText(getApplicationContext(), "Application don't have permission to access location\nIf you want" +
-                    "to get GPS data, please enable permission in Settings", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.error_no_location_perms, Toast.LENGTH_LONG).show();
         }
         //check which connectivity you can use to get data
         if (isNetworkEnabled) {
-            Log.e("GPS", "Network enabled");
             locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
                     networkLocationListener);
@@ -79,9 +78,7 @@ public class GPSLocator extends Service {
 
         //if you can't get data, stop service
         if ((!isGPSEnabled || locationPerm1 || locationPerm2) && !isNetworkEnabled) {
-            Toast.makeText(getApplicationContext(), "GPS data can't be accessed.\nPlease turn GPS or Network ON.\n" +
-                            "If Network is ON please check flag in Settings-Security to use Network for location.",
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.error_cant_get_location, Toast.LENGTH_LONG).show();
             stopSelf();
         }
     }
@@ -132,9 +129,12 @@ public class GPSLocator extends Service {
         public void onLocationChanged(Location location) {
             lastLocation.set(location);
             StringBuilder locationString = new StringBuilder();
-            locationString.append("Latitude: ").append(location.getLatitude()).append("\u00B0\n")
-                    .append("Longitude: ").append(location.getLongitude()).append("\u00B0\n")
-                    .append("Altitude: ").append(location.getAltitude()).append("\u00B0");
+            locationString.append(Resources.getSystem().getString(R.string.latitude)).append(": ")
+                    .append(location.getLatitude()).append("\u00B0\n")
+                    .append(Resources.getSystem().getString(R.string.longitude)).append(": ")
+                    .append(location.getLongitude()).append("\u00B0\n")
+                    .append(Resources.getSystem().getString(R.string.altitude)).append(": ")
+                    .append(location.getAltitude()).append("\u00B0");
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
         }
