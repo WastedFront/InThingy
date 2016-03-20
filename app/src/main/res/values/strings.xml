@@ -19,6 +19,9 @@
     <string name="text_button_stop_service">STOP</string>
     <string name="multiprocess_preferences_authority" translatable="false">com.gdubina.multiprocesspreferences.PREFFERENCE_AUTHORITY</string>
     <string name="text_menu_reply_service">AutoReply</string>
+    <string name="name_sensor">Sensor</string>
+    <string name="text_autoreply_off">AutoReply service off</string>
+    <string name="text_autoreply_on">AutoReply service on</string>
     <string-array name="encryption_array">
         <item>NONE</item>
     </string-array>

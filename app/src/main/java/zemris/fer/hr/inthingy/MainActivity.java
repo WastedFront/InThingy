@@ -32,6 +32,7 @@ import zemris.fer.hr.inthingy.custom.MyUtils;
 import zemris.fer.hr.inthingy.gps.GPSLocator;
 import zemris.fer.hr.inthingy.messages.MessageReplyService;
 import zemris.fer.hr.inthingy.sensors.DeviceSensors;
+import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
  * Activity for displaying main screen. It provides user options to send new message or to see received messages.
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             @Override
             public void onTabChanged(String tabId) {
                 if (!EMPTY_TAB_TAG.equals(tabId)) {
-                    String text = "Sensor: " + tabId + "\n" + sensorDataMap.get(tabId);
+                    String text = R.string.name_sensor + ": " + tabId + "\n" + sensorDataMap.get(tabId);
                     tvSensorData.setText(text);
                 }
             }
@@ -182,13 +183,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             Drawable onIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_on);
             if (item.getIcon().getConstantState().equals(onIcon.getConstantState())) {
                 item.setIcon(offIcon);
-                Toast.makeText(getApplicationContext(), "AutoReply service off", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.text_autoreply_off, Toast.LENGTH_SHORT).show();
                 if (MyUtils.isServiceRunning(MessageReplyService.class, MainActivity.this)) {
                     stopService(autoReplyService);
                 }
             } else {
                 item.setIcon(onIcon);
-                Toast.makeText(getApplicationContext(), "AutoReply service on", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), R.string.text_autoreply_on, Toast.LENGTH_SHORT).show();
                 if (!MyUtils.isServiceRunning(MessageReplyService.class, MainActivity.this)) {
                     startService(autoReplyService);
                 }
@@ -252,42 +253,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
                     String destination = etDestination.getText().toString();
                     String source = MyUtils.getLocalIpAddress();
-                    sendMessage(thingId, source, destination, encryption, sendMode, sensorDataMap);
+                    MyUtils.sendMessage(MainActivity.this, thingId, source, destination, encryption, sendMode, sensorDataMap);
                 }
                 break;
             default:
                 //some error
                 break;
         }
-    }
-
-    /**
-     * Method for sending message with given parameters.
-     * It checks if device is connected to the Internet or not.
-     *
-     * @param thingId
-     *         id of device which is sending message
-     * @param source
-     *         source address
-     * @param destination
-     *         destination address
-     * @param encryption
-     *         encryption which will be used in message
-     * @param sendMode
-     *         adapter through which message will be send
-     * @param dataMap
-     *         map containing data.
-     * @return true if message is sent, otherwise false
-     */
-    private boolean sendMessage(String thingId, String source, String destination,
-                                String encryption, String sendMode, Map<String, String> dataMap) {
-        if (!MyUtils.isNetworkAvailable(MainActivity.this)) {
-            Toast.makeText(MainActivity.this, "You aren't connected to the Internet.\nAbort!", Toast.LENGTH_LONG).show();
-            return false;
-        }
-        String message = MyUtils.createMessage(thingId, source, destination, encryption, dataMap);
-
-        return false;
     }
 
 
@@ -346,6 +318,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
         String destination = etDestination.getText().toString();
         String source = MyUtils.getLocalIpAddress();
+        if (Constants.STRING_ERROR.equals(source)) {
+            Toast.makeText(MainActivity.this, "Your IP adress couldn't be found.\nAbort!", Toast.LENGTH_LONG).show();
+            return;
+        }
         String message = MyUtils.createMessage(thingId, source, destination, encryption, sensorDataMap);
         AlertDialog.Builder builderSingle = new AlertDialog.Builder(this);
         builderSingle.setTitle("Message preview:");
