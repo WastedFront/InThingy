@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private TextView tvSensorData;
     /** List of sensors and its data. */
     private Map<String, String> sensorDataMap = new HashMap<>();
-    ;
     /** Multi selection spinner for sensors. */
     private MultiSelectionSpinner spDeviceSensors;
     /** Edit text which contains address of destination. */
@@ -128,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             @Override
             public void onTabChanged(String tabId) {
                 if (!EMPTY_TAB_TAG.equals(tabId)) {
-                    String text = R.string.name_sensor + ": " + tabId + "\n" + sensorDataMap.get(tabId);
+                    String text = MainActivity.this.getString(R.string.name_sensor) + ": " + tabId + "\n" + sensorDataMap.get(tabId);
                     tvSensorData.setText(text);
                 }
             }
@@ -177,8 +176,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
         //service for automatic message reply
-        if (item.getItemId() == R.id.menuAutoReply) {
+        if (id == R.id.menuAutoReply) {
             Drawable offIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_off).getCurrent();
             Drawable onIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_on);
             if (item.getIcon().getConstantState().equals(onIcon.getConstantState())) {
@@ -194,6 +194,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     startService(autoReplyService);
                 }
             }
+        } else if (id == R.id.menuShowMessages) { //button for showing messages
+            //some fragment to show messages
         }
         return super.onOptionsItemSelected(item);
     }
@@ -295,7 +297,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //some adresses
         arrayAdapter.add("192.168.1.1");
 
-        dialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        dialogBuilder.setNegativeButton(MainActivity.this.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
@@ -356,7 +358,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         if (spDeviceSensors.getSelectedStrings().size() > 0) {
             //update value
             String tabName = tabHost.getCurrentTabTag();
-            String text = R.string.name_sensor + ": " + tabName + "\n" + sensorDataMap.get(tabName);
+            String text = MainActivity.this.getString(R.string.name_sensor) + ": " + tabName + "\n" + sensorDataMap.get(tabName);
             tvSensorData.setText(text);
         }
     }

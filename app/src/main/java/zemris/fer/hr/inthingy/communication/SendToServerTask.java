@@ -49,10 +49,12 @@ public class SendToServerTask extends AsyncTask<String, String, String> {
         } else {
             //say error
         }
-        try {
-            client.close();// closing client
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (client != null) {
+            try {
+                client.close();// closing client
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

@@ -4,12 +4,16 @@
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="zemris.fer.hr.inthingy.MainActivity">
 
-    <group android:checkableBehavior="all">
-        <item
-            android:id="@+id/menuAutoReply"
-            android:checkable="true"
-            android:title="@string/text_menu_reply_service"
-            android:icon="@drawable/icon_auto_reply_off"
-            app:showAsAction="ifRoom"/>
-    </group>
+    <item
+        android:id="@+id/menuAutoReply"
+        android:icon="@drawable/icon_auto_reply_off"
+        android:title="@string/text_menu_reply_service"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/menuShowMessages"
+        android:icon="@drawable/icon_message"
+        android:title="@string/text_menu_show_messages"
+        app:showAsAction="ifRoom"/>
+
 </menu>

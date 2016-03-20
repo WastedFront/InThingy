@@ -27,12 +27,10 @@
     <string name="error_invalid_adress_fromat">Invalid address format!</string>
     <string name="text_select_destination">Select destination:</string>
     <string name="error_cant_get_ip">Your IP address couldn\'t be found.\nAbort!</string>
-    <string name="text_finding_sensors">Your IP address couldn\'t be found.\nAbort!</string>
+    <string name="text_finding_sensors">Finding sensors…</string>
     <string name="text_all_sensors_checked">All sensors checked</string>
     <string name="error_checking_sensors">Error while checking sensors!</string>
-    <string name="gps">GPS</string>
     <string name="error_no_internet_conn">You aren\'t connected to the Internet\nAbort</string>
-    <string name="cancel">CANCEL</string>
     <string name="ok">OK</string>
     <string name="illumination">Illumination</string>
     <string name="proximity">Proximity</string>
@@ -44,6 +42,7 @@
     <string name="altitude">Altitude</string>
     <string name="error_no_location_perms">Application don\'t have permission to access location If you want to get GPS data, please enable permission in Settings</string>
     <string name="error_cant_get_location">GPS data can\'t be accessed. Please turn GPS or Network ON.\nIf Network is ON please check flag in Settings-Security to use Network for location.</string>
+    <string name="text_menu_show_messages">MESSAGES</string>
     <string-array name="encryption_array">
         <item>NONE</item>
     </string-array>

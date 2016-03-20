@@ -5,7 +5,6 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -129,11 +128,11 @@ public class GPSLocator extends Service {
         public void onLocationChanged(Location location) {
             lastLocation.set(location);
             StringBuilder locationString = new StringBuilder();
-            locationString.append(Resources.getSystem().getString(R.string.latitude)).append(": ")
+            locationString.append(getString(R.string.latitude)).append(": ")
                     .append(location.getLatitude()).append("\u00B0\n")
-                    .append(Resources.getSystem().getString(R.string.longitude)).append(": ")
+                    .append(getString(R.string.longitude)).append(": ")
                     .append(location.getLongitude()).append("\u00B0\n")
-                    .append(Resources.getSystem().getString(R.string.altitude)).append(": ")
+                    .append(getString(R.string.altitude)).append(": ")
                     .append(location.getAltitude()).append("\u00B0");
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();

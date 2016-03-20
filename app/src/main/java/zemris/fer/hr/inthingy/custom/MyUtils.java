@@ -94,7 +94,10 @@ public class MyUtils {
 
     public static String createMessage(String id, String source, String destination, String encryption, Map<String, String> dataMap) {
         StringBuilder message = new StringBuilder();
-
+        message.append("'mid'=1").append("'src'=").append(id).append("'dest'=").append(destination).append("'data'=");
+        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+            message.append(entry.getKey()).append("\n").append(entry.getValue()).append(";;"); //;; je simbol po kojem treba podatke splitati
+        }
         return message.toString();
     }
 

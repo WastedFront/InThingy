@@ -3,7 +3,6 @@ package zemris.fer.hr.inthingy.custom;
 import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
-import android.content.res.Resources;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
@@ -49,7 +48,7 @@ public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
         super.onPreExecute();
         sensorNames = new ArrayList<>();
         progressDialog = new ProgressDialog(mContext);
-        progressDialog.setMessage(Resources.getSystem().getString(R.string.text_finding_sensors));
+        progressDialog.setMessage(mContext.getString(R.string.text_finding_sensors));
         progressDialog.setIndeterminate(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
