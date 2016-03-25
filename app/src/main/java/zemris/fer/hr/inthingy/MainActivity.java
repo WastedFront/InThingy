@@ -227,7 +227,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         int id = item.getItemId();
         //service for automatic message reply
         if (id == R.id.menuAutoReply) {
-            Drawable offIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_off).getCurrent();
+            Drawable offIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_off);
             Drawable onIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_on);
             if (item.getIcon().getConstantState().equals(onIcon.getConstantState())) {
                 item.setIcon(offIcon);
