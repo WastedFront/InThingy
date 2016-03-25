@@ -14,24 +14,27 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
         <service
             android:name=".gps.GPSLocator"
-            android:process=":gps_locator"
-            android:exported="false"/>
+            android:exported="false"
+            android:process=":gps_locator"/>
         <service
             android:name=".sensors.DeviceSensors"
-            android:process=":sensor_reader"
-            android:exported="false"/>
+            android:exported="false"
+            android:process=":sensor_reader"/>
         <service
             android:name=".messages.MessageReplyService"
-            android:process=":message_reply_service"
-            android:exported="false"/>
+            android:exported="false"
+            android:process=":message_reply_service"/>
+
         <provider
             android:name="com.gdubina.multiprocesspreferences.MultiprocessPreferences"
             android:authorities="@string/multiprocess_preferences_authority"

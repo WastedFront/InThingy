@@ -61,10 +61,24 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private Intent autoReplyService;
     /** Unique device ID. */
     public String thingId;
+    /** Flag to check if auto reply is on or off. */
+    private boolean flagAutoReply = false;
     /** Default sensor data. */
     private static final String DEFAULT_SENSOR_DATA = "NULL\nNULL\nNULL";
     /** Empty tab name. */
     private static final String EMPTY_TAB_TAG = "EMPTY";
+    /** Key for saving found sensors. */
+    private static final String KEY_FOUND_SENSORS = "FOUND_SENSORS";
+    /** Key for saving selected sensors. */
+    private static final String KEY_SEL_SENSORS = "SELECTED_SENSORS";
+    /** Key auto reply service running. */
+    private static final String KEY_AUTO_REPLY_ON = "AUTOREPLY_ON";
+    /** Key for destination string. */
+    private static final String KEY_DESTINATION = "DESTINATION";
+    /** Key for encryption string. */
+    private static final String KEY_ENCRYPTION = "ENCRYPTION";
+    /** Key for send mode string. */
+    private static final String KEY_SEND_MODE = "SEND_MODE";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,8 +91,12 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         gpsService = new Intent(this, GPSLocator.class);
         sensorService = new Intent(this, DeviceSensors.class);
         autoReplyService = new Intent(this, MessageReplyService.class);
-        //run task to populate spinner with proper data
-        (new DataForSpinnerTask(MainActivity.this, spDeviceSensors)).execute();
+        if (savedInstanceState == null) {
+            //delete shared preferences; no need for apply()
+            MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext()).edit().clear();
+            //run task to populate spinner with proper data
+            (new DataForSpinnerTask(MainActivity.this, spDeviceSensors)).execute();
+        }
     }
 
     /**
@@ -152,6 +170,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         //check location permission
         startService(gpsService);
         startService(sensorService);
+        if (flagAutoReply) {
+            startService(autoReplyService);
+        }
     }
 
     @Override
@@ -159,19 +180,46 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         super.onPause();
         stopService(gpsService);
         stopService(sensorService);
+        stopService(autoReplyService);
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        //delete shared preferences; no need for apply()
-        MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext()).edit().clear();
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putStringArray(KEY_FOUND_SENSORS, spDeviceSensors.getStringData());
+        outState.putStringArray(KEY_SEL_SENSORS,
+                spDeviceSensors.getSelectedStrings().toArray(new String[spDeviceSensors.getSelectedStrings().size()]));
+        outState.putBoolean(KEY_AUTO_REPLY_ON, flagAutoReply);
+        outState.putString(KEY_DESTINATION, ((EditText) findViewById(R.id.etDestination)).getText().toString());
+        outState.putInt(KEY_ENCRYPTION, ((Spinner) findViewById(R.id.spEncryption)).getSelectedItemPosition());
+        outState.putInt(KEY_SEND_MODE, ((Spinner) findViewById(R.id.spSendMode)).getSelectedItemPosition());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        spDeviceSensors.setItems(savedInstanceState.getStringArray(KEY_FOUND_SENSORS));
+        spDeviceSensors.setSelection(savedInstanceState.getStringArray(KEY_SEL_SENSORS));
+        updateTabHostWithData();
+        flagAutoReply = savedInstanceState.getBoolean(KEY_AUTO_REPLY_ON);
+        selectedStrings(spDeviceSensors.getSelectedStrings());
+        ((EditText) findViewById(R.id.etDestination)).setText(savedInstanceState.getString(KEY_DESTINATION));
+        ((Spinner) findViewById(R.id.spEncryption)).setSelection(savedInstanceState.getInt(KEY_ENCRYPTION));
+        ((Spinner) findViewById(R.id.spSendMode)).setSelection(savedInstanceState.getInt(KEY_SEND_MODE));
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (flagAutoReply) {
+            menu.findItem(R.id.menuAutoReply).setIcon(ContextCompat.getDrawable(getApplicationContext(),
+                    R.drawable.icon_auto_reply_on));
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -184,14 +232,16 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             if (item.getIcon().getConstantState().equals(onIcon.getConstantState())) {
                 item.setIcon(offIcon);
                 Toast.makeText(getApplicationContext(), R.string.text_autoreply_off, Toast.LENGTH_SHORT).show();
-                if (MyUtils.isServiceRunning(MessageReplyService.class, MainActivity.this)) {
+                if (flagAutoReply) {
                     stopService(autoReplyService);
+                    flagAutoReply = false;
                 }
             } else {
                 item.setIcon(onIcon);
                 Toast.makeText(getApplicationContext(), R.string.text_autoreply_on, Toast.LENGTH_SHORT).show();
-                if (!MyUtils.isServiceRunning(MessageReplyService.class, MainActivity.this)) {
+                if (!flagAutoReply) {
                     startService(autoReplyService);
+                    flagAutoReply = true;
                 }
             }
         } else if (id == R.id.menuShowMessages) { //button for showing messages
@@ -350,6 +400,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             startService(sensorService);
         }
         //get new values
+        updateTabHostWithData();
+    }
+
+    /**
+     * Method for updating {#link tabHost} with valid data.
+     */
+    private void updateTabHostWithData() {
         for (String name : spDeviceSensors.getSelectedStrings()) {
             String value = MultiprocessPreferences.
                     getDefaultSharedPreferences(getApplicationContext()).getString(name, DEFAULT_SENSOR_DATA);

@@ -242,4 +242,8 @@ public class MultiSelectionSpinner extends Spinner implements OnMultiChoiceClick
         }
         return sb.toString();
     }
+
+    public String[] getStringData() {
+        return _items;
+    }
 }
