@@ -2,6 +2,7 @@ package zemris.fer.hr.inthingy;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -167,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     @Override
     public void onResume() {
         super.onResume();
-        //check location permission
         startService(gpsService);
         startService(sensorService);
         if (flagAutoReply) {
@@ -206,6 +206,13 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         ((Spinner) findViewById(R.id.spEncryption)).setSelection(savedInstanceState.getInt(KEY_ENCRYPTION));
         ((Spinner) findViewById(R.id.spSendMode)).setSelection(savedInstanceState.getInt(KEY_SEND_MODE));
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        //do nothing else
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
