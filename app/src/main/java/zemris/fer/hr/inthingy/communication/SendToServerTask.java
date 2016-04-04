@@ -1,6 +1,9 @@
 package zemris.fer.hr.inthingy.communication;
 
+import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -16,8 +19,17 @@ public class SendToServerTask extends AsyncTask<String, String, String> {
 
     /** Variable representing client. */
     private Socket client;
-    /** Constant for prt which will be used. */
+    /** Constant for port which will be used. */
     private static final int PORT = 5200;
+    /** Application context. */
+    private Context mContext;
+
+    /**
+     * Constructor for getting context of activity or application.
+     */
+    public SendToServerTask(Context mContext) {
+        this.mContext = mContext;
+    }
 
     @Override
     protected void onPreExecute() {
@@ -36,6 +48,7 @@ public class SendToServerTask extends AsyncTask<String, String, String> {
             printwriter.flush();// flushing the printwriter
             printwriter.close();// closing printwriter
         } catch (IOException e) {
+            Log.e("SendToServer", e.toString());
             return Constants.STRING_ERROR;
         }
         return Constants.STRING_OK;
@@ -45,9 +58,9 @@ public class SendToServerTask extends AsyncTask<String, String, String> {
     protected void onPostExecute(String s) {
         super.onPostExecute(s);
         if (Constants.STRING_OK.equals(s)) {
-            //say ok
+            Toast.makeText(mContext, "Message sent", Toast.LENGTH_SHORT).show();
         } else {
-            //say error
+            Toast.makeText(mContext, "Message error", Toast.LENGTH_SHORT).show();
         }
         if (client != null) {
             try {

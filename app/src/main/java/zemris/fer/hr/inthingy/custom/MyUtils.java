@@ -128,7 +128,7 @@ public class MyUtils {
             return false;
         }
         String message = MyUtils.createMessage(thingId, source, destination, encryption, dataMap);
-        (new SendToServerTask()).execute(destination, message);
+        (new SendToServerTask(context)).execute(destination, message);
         return false;
     }
 

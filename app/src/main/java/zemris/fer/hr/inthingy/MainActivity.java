@@ -210,7 +210,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        //do nothing else
+        //do something?
     }
 
 
@@ -253,6 +253,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             }
         } else if (id == R.id.menuShowMessages) { //button for showing messages
             //some fragment to show messages
+            Toast.makeText(getApplicationContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -352,7 +353,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         dialogBuilder.setTitle(R.string.text_select_destination);
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice);
         //some adresses
-        arrayAdapter.add("192.168.1.1");
+        arrayAdapter.add("127.0.0.1");
 
         dialogBuilder.setNegativeButton(MainActivity.this.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
