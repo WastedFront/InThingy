@@ -20,7 +20,7 @@ public class SendToServerTask extends AsyncTask<String, String, String> {
     /** Variable representing client. */
     private Socket client;
     /** Constant for port which will be used. */
-    private static final int PORT = 5200;
+    private static final int PORT = 25000;
     /** Application context. */
     private Context mContext;
 

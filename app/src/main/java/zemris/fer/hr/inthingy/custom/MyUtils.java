@@ -2,7 +2,6 @@ package zemris.fer.hr.inthingy.custom;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.widget.Toast;
 
@@ -124,7 +123,7 @@ public class MyUtils {
     public static boolean sendMessage(Context context, String thingId, String source, String destination,
                                       String encryption, String sendMode, Map<String, String> dataMap) {
         if (!isNetworkAvailable(context)) {
-            Toast.makeText(context, Resources.getSystem().getString(R.string.error_no_internet_conn), Toast.LENGTH_LONG).show();
+            Toast.makeText(context, context.getResources().getString(R.string.error_no_internet_conn), Toast.LENGTH_LONG).show();
             return false;
         }
         String message = MyUtils.createMessage(thingId, source, destination, encryption, dataMap);

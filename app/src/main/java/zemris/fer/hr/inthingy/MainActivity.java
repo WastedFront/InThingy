@@ -353,6 +353,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         dialogBuilder.setTitle(R.string.text_select_destination);
         final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice);
         //some adresses
+        arrayAdapter.add("10.0.3.2");
+        arrayAdapter.add("10.0.2.2");
+        arrayAdapter.add("10.0.3.15");
         arrayAdapter.add("127.0.0.1");
 
         dialogBuilder.setNegativeButton(MainActivity.this.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
