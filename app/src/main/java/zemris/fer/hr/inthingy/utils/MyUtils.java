@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.custom;
+package zemris.fer.hr.inthingy.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -14,7 +14,6 @@ import java.util.Map;
 
 import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.communication.SendToServerTask;
-import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
  * Utility class which contains some method that are used by multiple activities/services.

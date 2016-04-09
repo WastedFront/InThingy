@@ -31,6 +31,7 @@
     <string name="text_all_sensors_checked">All sensors checked</string>
     <string name="error_checking_sensors">Error while checking sensors!</string>
     <string name="error_no_internet_conn">You aren\'t connected to the Internet\nAbort</string>
+    <string name="error_device_id">Device ID should have 16 characters!\nPlease fix it.</string>
     <string name="ok">OK</string>
     <string name="illumination">Illumination</string>
     <string name="proximity">Proximity</string>

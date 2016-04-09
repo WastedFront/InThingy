@@ -5,10 +5,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
-
 import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
@@ -17,8 +13,6 @@ import zemris.fer.hr.inthingy.utils.Constants;
  */
 public class SendToServerTask extends AsyncTask<String, String, String> {
 
-    /** Variable representing client. */
-    private Socket client;
     /** Constant for port which will be used. */
     private static final int PORT = 25000;
     /** Application context. */
@@ -41,16 +35,12 @@ public class SendToServerTask extends AsyncTask<String, String, String> {
         String destinationIP = params[0];
         String message = params[1];
 
-        try {
-            client = new Socket(destinationIP, PORT);// ip address is entered over here....
-            PrintWriter printwriter = new PrintWriter(client.getOutputStream(), true);// getting the outputstream
-            printwriter.write(message);// writing the message
-            printwriter.flush();// flushing the printwriter
-            printwriter.close();// closing printwriter
-        } catch (IOException e) {
-            Log.e("SendToServer", e.toString());
-            return Constants.STRING_ERROR;
-        }
+        NetClient nc = new NetClient(destinationIP, PORT);
+        nc.sendDataWithString(message);
+        String r = nc.receiveDataFromServer();
+        Log.d("SendToServer", "MSG: " + r);
+        Log.e("SendToServer", "MSG: " + r);
+
         return Constants.STRING_OK;
     }
 
@@ -61,13 +51,6 @@ public class SendToServerTask extends AsyncTask<String, String, String> {
             Toast.makeText(mContext, "Message sent", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(mContext, "Message error", Toast.LENGTH_SHORT).show();
-        }
-        if (client != null) {
-            try {
-                client.close();// closing client
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 

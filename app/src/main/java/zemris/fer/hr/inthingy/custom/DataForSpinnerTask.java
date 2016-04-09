@@ -75,7 +75,6 @@ public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
         }
         if (Constants.STRING_OK.equals(result)) {
             multiSelectionSpinner.setItems(sensorNames);
-            Toast.makeText(mContext, R.string.text_all_sensors_checked, Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(mContext, R.string.error_checking_sensors, Toast.LENGTH_SHORT).show();
         }

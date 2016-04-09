@@ -23,6 +23,7 @@ import zemris.fer.hr.inthingy.utils.Constants;
  * more accurate.
  * It handles permissions which application needs to have to access those data.
  * If both, GPS and Network, are not enabled, user will have to enable them if he wants to get this data.
+ * Data is stored in local file which can be accessed from multiple threads.
  */
 public class GPSLocator extends Service {
     /** Manager for location */
@@ -110,7 +111,8 @@ public class GPSLocator extends Service {
 
 
     /**
-     * Class which will provide location, it implements {@link android.location.LocationListener}
+     * Class which will provide location, it implements {@link android.location.LocationListener}.
+     * When the location is changed, it's new value is stored in {@link MultiprocessPreferences}.
      */
     private class MyLocationListener implements LocationListener {
 

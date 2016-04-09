@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorThingIdText">#055e05</color>
+    <color name="colorThingIdText">#64dd17</color>
+    <color name="colorThingIdError">#d50000</color>
     <color name="colorTVSensorDataBackground">#212121</color>
     <color name="colorTVSensorDataTextColor">#eeeeee</color>
     <color name="colorTabLayoutBackground">#01084e</color>

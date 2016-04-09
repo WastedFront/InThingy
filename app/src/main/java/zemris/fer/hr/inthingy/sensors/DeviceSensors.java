@@ -15,7 +15,8 @@ import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 import zemris.fer.hr.inthingy.R;
 
 /**
- * Class for handling sensor data.
+ * Class for handling sensor data. For every event, it checks which sensor's data is changed and stores it's new
+ * value into the {@link MultiprocessPreferences}.
  */
 public class DeviceSensors extends Service implements SensorEventListener {
 
@@ -88,7 +89,7 @@ public class DeviceSensors extends Service implements SensorEventListener {
      *         unit for values
      * @param values
      *         array of sensor values
-     * @return properly formatted string
+     * @return properly formatted string, format is: valueName1: someValue valueUnit\n
      */
     private String makeValueString(String[] valueNames, String unit, float[] values) {
         StringBuilder valueString = new StringBuilder();
