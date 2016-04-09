@@ -67,7 +67,7 @@
                 android:prompt="@string/prompt_spinner_sensors"/>
 
             <Button
-                android:id="@+id/bCheckSensors"
+                android:id="@+id/bCheckData"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"

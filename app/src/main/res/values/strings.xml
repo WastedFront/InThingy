@@ -11,7 +11,7 @@
     <string name="text_choose_send_mode">Send ViA:</string>
     <string name="text_destination">Enter destination:</string>
     <string name="text_choose_destination">CHOOSE</string>
-    <string name="hint_et_destination">Enter IP address</string>
+    <string name="hint_et_destination">IP:PORT  THING_NAME</string>
     <string name="text_button_preview_message">PREVIEW</string>
     <string name="text_button_send_message">SEND</string>
     <string name="text_respond_service">Manipulate reply service:</string>
@@ -49,5 +49,10 @@
     </string-array>
     <string-array name="send_mode_array">
         <item>Internet</item>
+    </string-array>
+    <string-array name="some_destinations">
+        <item>10.0.3.2:25000 THING_CLOUD1</item>
+        <item>10.0.2.2:25000 THING_CLOUD2</item>
+        <item>10.0.3.15:25000 THING_CLOUD3</item>
     </string-array>
 </resources>

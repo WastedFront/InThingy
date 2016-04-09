@@ -1,8 +1,8 @@
 package zemris.fer.hr.inthingy;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -48,20 +48,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private TabHost tabHost;
     /** TextView for displaying sensor data. */
     private TextView tvSensorData;
-    /** EditText for device ID. */
-    private EditText etDeviceId;
-    /** Edit text which contains address of destination. */
-    private EditText etDestination;
+    /** EditText for device ID and destination information. */
+    private EditText etDeviceId, etDestination;
     /** List of sensors and its data. */
     private Map<String, String> sensorDataMap = new HashMap<>();
     /** Multi selection spinner for sensors. */
     private MultiSelectionSpinner spDeviceSensors;
-    /** GPS service intent. */
-    private Intent gpsService;
-    /** Sensor service intent. */
-    private Intent sensorService;
-    /** Auto reply service intent. */
-    private Intent autoReplyService;
+    /** GPS, sensor, auto-reply service intent. */
+    private Intent gpsService, sensorService, autoReplyService;
     /** Flag to check if auto reply is on or off. */
     private boolean flagAutoReply = false;
 
@@ -71,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        initializeSensorSpinner();
         initializeElements();
         gpsService = new Intent(this, GPSLocator.class);
         sensorService = new Intent(this, DeviceSensors.class);
@@ -82,36 +75,21 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     }
 
     /**
-     * Method for initializing spinner with list of sensor's that are available for current device.
-     */
-    private void initializeSensorSpinner() {
-        //init spinner
-        spDeviceSensors = (MultiSelectionSpinner) findViewById(R.id.spDeviceSensors);
-        spDeviceSensors.setListener(MainActivity.this);
-    }
-
-    /**
      * Method for initializing global elements which are used in this class.
      */
     private void initializeElements() {
-        initTabHost();
-        String defaultID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        spDeviceSensors = (MultiSelectionSpinner) findViewById(R.id.spDeviceSensors);
+        spDeviceSensors.setListener(MainActivity.this);
         tvSensorData = (TextView) findViewById(R.id.tvSensorData);
         etDestination = (EditText) findViewById(R.id.etDestination);
         etDeviceId = (EditText) findViewById(R.id.etThingID);
-        etDeviceId.setText(MultiprocessPreferences.
-                getDefaultSharedPreferences(getApplicationContext()).getString(Constants.KEY_DEVICE_ID, defaultID));
-        initButtons();
-    }
-
-    /**
-     * Method for initialization of all buttons (setting onClickListener, etc)
-     */
-    private void initButtons() {
-        int[] buttonIds = new int[]{R.id.bCheckSensors, R.id.bChooseDestination, R.id.bSendMessage};
+        String defaultID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        etDeviceId.setText(getPreferences(Context.MODE_PRIVATE).getString(Constants.KEY_DEVICE_ID, defaultID));
+        int[] buttonIds = new int[]{R.id.bCheckData, R.id.bChooseDestination, R.id.bSendMessage};
         for (int buttonId : buttonIds) {
             findViewById(buttonId).setOnClickListener(MainActivity.this);
         }
+        initTabHost();
     }
 
     /**
@@ -129,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 }
             }
         });
-        //add some tab
         addTabHostEmptyTab();
     }
 
@@ -187,12 +164,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         ((Spinner) findViewById(R.id.spSendMode)).setSelection(savedInstanceState.getInt(Constants.KEY_SEND_MODE));
     }
 
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        //do something?
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -232,28 +203,22 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 }
             }
         } else if (id == R.id.menuShowMessages) { //button for showing messages
-            //some fragment to show messages
             Toast.makeText(getApplicationContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
     }
 
-    //
-    // HANDLING SPINNER CHECKED INDICES
-    //
+
     @Override
     public void selectedIndices(List<Integer> indices) {
-        //empty stuff
     }
 
     @Override
     public void selectedStrings(final List<String> strings) {
-        //first clear all tabHost
         tabHost.clearAllTabs();
-        //clear data from map
         sensorDataMap.clear();
-        //clear text view for sensor data
         tvSensorData.setText(R.string.text_sensor_data_default);
+
         if (strings != null && strings.size() > 0) {
             for (int i = 0; i < strings.size(); ++i) {
                 String name = strings.get(i);
@@ -276,8 +241,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.bCheckSensors:
-                checkSensors();
+            case R.id.bCheckData:
+                checkData();
                 break;
             case R.id.bChooseDestination:
                 chooseDestination();
@@ -306,13 +271,11 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             etDeviceId.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorThingIdError));
             return false;
         } else {
-            MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext()).edit().putString(Constants.KEY_DEVICE_ID, deviceID);
+            getPreferences(Context.MODE_PRIVATE).edit().putString(Constants.KEY_DEVICE_ID, deviceID).apply();
             etDeviceId.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorThingIdText));
-
         }
         if (sensorDataMap.isEmpty()) {
-            Toast.makeText(MainActivity.this, R.string.error_no_sensor_selected,
-                    Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.error_no_sensor_selected, Toast.LENGTH_SHORT).show();
             return false;
         }
         String destination = etDestination.getText().toString();
@@ -320,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             Toast.makeText(MainActivity.this, R.string.error_no_destination, Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (!Pattern.compile("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})").matcher(destination).matches()) {
+        if (!Pattern.compile(Constants.REGEX_DESTINATION_FORMAT).matcher(destination).matches()) {
             Toast.makeText(MainActivity.this, R.string.error_invalid_adress_fromat, Toast.LENGTH_SHORT).show();
             return false;
         }
@@ -333,13 +296,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private void chooseDestination() {
         AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
         dialogBuilder.setTitle(R.string.text_select_destination);
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice);
-        //some adresses
-        arrayAdapter.add("10.0.3.2:25000");
-        arrayAdapter.add("10.0.2.2:25000");
-        arrayAdapter.add("10.0.3.15:25000");
-        arrayAdapter.add("127.0.0.1:25000");
-
+        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice,
+                getResources().getStringArray(R.array.some_destinations));
         dialogBuilder.setNegativeButton(MainActivity.this.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -358,17 +316,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     /**
      * Method for checking sensors data changes and if services are running or not.
-     * It is used for button bChecksensors.
      */
-    private void checkSensors() {
-        //if one of service is stopped, run it again
+    private void checkData() {
         if (!MyUtils.isServiceRunning(GPSLocator.class, MainActivity.this)) {
             startService(gpsService);
         }
         if (!MyUtils.isServiceRunning(DeviceSensors.class, MainActivity.this)) {
             startService(sensorService);
         }
-        //get new values
         updateTabHostWithData();
     }
 

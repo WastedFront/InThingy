@@ -92,6 +92,16 @@ public class GPSLocator extends Service {
         }
         isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        StringBuilder locationString = new StringBuilder();
+        locationString.append(getString(R.string.latitude)).append(": ")
+                .append(0.0).append("\u00B0\n")
+                .append(getString(R.string.longitude)).append(": ")
+                .append(0.0).append("\u00B0\n")
+                .append(getString(R.string.altitude)).append(": ")
+                .append(0.0).append("\u00B0");
+        MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
+                .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
     }
 
     @Override

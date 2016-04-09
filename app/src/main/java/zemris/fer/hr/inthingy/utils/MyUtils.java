@@ -3,17 +3,12 @@ package zemris.fer.hr.inthingy.utils;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.widget.Toast;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-import java.util.Map;
-
-import zemris.fer.hr.inthingy.R;
-import zemris.fer.hr.inthingy.communication.SendToServerTask;
 
 /**
  * Utility class which contains some method that are used by multiple activities/services.
@@ -73,61 +68,5 @@ public class MyUtils {
         return null;
     }
 
-    /**
-     * Method for creating message with given parameters.
-     * Message format is:
-     *
-     * @param id
-     *         thing id
-     * @param source
-     *         this address
-     * @param destination
-     *         destination address
-     * @param encryption
-     *         encryption which will be used in message
-     * @param dataMap
-     *         map containing data.
-     * @return message in valid format
-     */
-
-    public static String createMessage(String id, String source, String destination, String encryption, Map<String, String> dataMap) {
-        StringBuilder message = new StringBuilder();
-        message.append("'mid'=1").append("'src'=").append(id).append("'dest'=").append(destination).append("'data'=");
-        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
-            message.append(entry.getKey()).append("\n").append(entry.getValue()).append(";;"); //;; je simbol po kojem treba podatke splitati
-        }
-        return message.toString();
-    }
-
-    /**
-     * Method for sending message with given parameters.
-     * It checks if device is connected to the Internet or not.
-     *
-     * @param context
-     *         context of activity/service which calls this method
-     * @param thingId
-     *         id of device which is sending message
-     * @param source
-     *         source address
-     * @param destination
-     *         destination address
-     * @param encryption
-     *         encryption which will be used in message
-     * @param sendMode
-     *         adapter through which message will be send
-     * @param dataMap
-     *         map containing data.
-     * @return true if message is sent, otherwise false
-     */
-    public static boolean sendMessage(Context context, String thingId, String source, String destination,
-                                      String encryption, String sendMode, Map<String, String> dataMap) {
-        if (!isNetworkAvailable(context)) {
-            Toast.makeText(context, context.getResources().getString(R.string.error_no_internet_conn), Toast.LENGTH_LONG).show();
-            return false;
-        }
-        String message = MyUtils.createMessage(thingId, source, destination, encryption, dataMap);
-        (new SendToServerTask(context)).execute(destination, message);
-        return false;
-    }
 
 }
