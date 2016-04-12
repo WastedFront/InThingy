@@ -51,8 +51,8 @@
         <item>Internet</item>
     </string-array>
     <string-array name="some_destinations">
-        <item>10.0.3.2:25000 THING_CLOUD1</item>
-        <item>10.0.2.2:25000 THING_CLOUD2</item>
-        <item>10.0.3.15:25000 THING_CLOUD3</item>
+        <item>10.0.3.2:25000 THING_CLOUD_1234</item>
+        <item>10.0.2.2:25000 THING_CLOUD_2234</item>
+        <item>10.0.3.15:25000 THING_CLOUD_3344</item>
     </string-array>
 </resources>

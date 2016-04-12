@@ -249,7 +249,11 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                 break;
             case R.id.bSendMessage:
                 if (checkAllParameters()) {
-
+                    String deviceId = etDeviceId.getText().toString();
+                    String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
+                    String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
+                    String destinationFormat = etDestination.getText().toString();
+                    MyUtils.sendMessage(deviceId, encryption, sendMode, destinationFormat, sensorDataMap, MainActivity.this);
                 }
                 break;
             default:

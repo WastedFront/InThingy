@@ -8,12 +8,20 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
+import java.util.Map;
+import java.util.Random;
+
+import zemris.fer.hr.inthingy.communication.SendToServerTask;
 
 /**
  * Utility class which contains some method that are used by multiple activities/services.
  */
 public class MyUtils {
+
+    /** Generator for message ID. */
+    private static final Random random = new Random();
 
     /**
      * Method for checking if network is available and connected.
@@ -69,4 +77,21 @@ public class MyUtils {
     }
 
 
+    public static void sendMessage(String deviceId, String encryption, String sendMode, String destinationFormat,
+                                   Map<String, String> sensorDataMap, Context context) {
+        String[] splitDestinationFormat = destinationFormat.split(" ");
+        String[] portIP = splitDestinationFormat[0].split(":");
+        String destinationIP = portIP[0];
+        String destinationPort = portIP[1];
+        String destinationID = splitDestinationFormat[1];
+        byte[] header = createHeader(deviceId, destinationID);
+        (new SendToServerTask(context)).execute(destinationIP, destinationPort, "ABC");
+    }
+
+    private static byte[] createHeader(String deviceId, String destinationID) {
+        byte[] messageId = new byte[8];
+        random.nextBytes(messageId);
+        String header = String.valueOf(messageId) + deviceId + destinationID;
+        return header.getBytes(Charset.defaultCharset());
+    }
 }
