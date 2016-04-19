@@ -3,7 +3,13 @@ package zemris.fer.hr.inthingy.utils;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.widget.Toast;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -13,7 +19,8 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Random;
 
-import zemris.fer.hr.inthingy.communication.SendToServerTask;
+import zemris.fer.hr.inthingy.R;
+import zemris.fer.hr.inthingy.communication.CommunicationTask;
 
 /**
  * Utility class which contains some method that are used by multiple activities/services.
@@ -84,14 +91,58 @@ public class MyUtils {
         String destinationIP = portIP[0];
         String destinationPort = portIP[1];
         String destinationID = splitDestinationFormat[1];
-        byte[] header = createHeader(deviceId, destinationID);
-        (new SendToServerTask(context)).execute(destinationIP, destinationPort, "ABC");
+        byte[] message = createMessage(deviceId, encryption, sensorDataMap, destinationID, context);
+        if (message == null) {
+            return;
+        }
+        switch (sendMode) {
+            case "Internet":
+                new CommunicationTask(destinationIP, destinationPort, message);
+                break;
+            default:
+                Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
+        }
+
     }
+
+    private static byte[] createMessage(String deviceId, String encryption, Map<String, String> sensorDataMap,
+                                        String destinationID, Context context) {
+        byte[] header = createHeader(deviceId, destinationID);
+        JSONObject jsonData = new JSONObject();
+        for (Map.Entry<String, String> entry : sensorDataMap.entrySet()) {
+            try {
+                jsonData.put(entry.getKey(), entry.getValue());
+            } catch (JSONException e) {
+                Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
+                return null;
+            }
+        }
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try {
+            outputStream.write(header);
+            outputStream.write(jsonData.toString().getBytes(Charset.defaultCharset()));
+        } catch (IOException e) {
+            Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        return encryptMessage(outputStream.toByteArray(), encryption);
+    }
+
 
     private static byte[] createHeader(String deviceId, String destinationID) {
         byte[] messageId = new byte[8];
         random.nextBytes(messageId);
         String header = String.valueOf(messageId) + deviceId + destinationID;
         return header.getBytes(Charset.defaultCharset());
+    }
+
+
+    private static byte[] encryptMessage(byte[] message, String encryption) {
+        switch (encryption) {
+            case "NONE":
+                return message;
+            default:
+                return message;
+        }
     }
 }

@@ -32,6 +32,10 @@
             android:exported="false"
             android:process=":sensor_reader"/>
         <service
+            android:name=".communication.CommunicationTask"
+            android:exported="false"
+            android:process=":communication_service"/>
+        <service
             android:name=".messages.MessageReplyService"
             android:exported="false"
             android:process=":message_reply_service"/>
