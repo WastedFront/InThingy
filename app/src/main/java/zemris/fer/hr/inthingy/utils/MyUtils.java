@@ -97,7 +97,7 @@ public class MyUtils {
         }
         switch (sendMode) {
             case "Internet":
-                new CommunicationTask(destinationIP, destinationPort, message);
+                new CommunicationTask(destinationIP, destinationPort, message, context);
                 break;
             default:
                 Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
@@ -132,7 +132,7 @@ public class MyUtils {
     private static byte[] createHeader(String deviceId, String destinationID) {
         byte[] messageId = new byte[8];
         random.nextBytes(messageId);
-        String header = String.valueOf(messageId) + deviceId + destinationID;
+        String header = (new String(messageId)) + deviceId + destinationID;
         return header.getBytes(Charset.defaultCharset());
     }
 

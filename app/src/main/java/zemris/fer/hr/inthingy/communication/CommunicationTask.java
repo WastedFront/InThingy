@@ -1,98 +1,74 @@
 package zemris.fer.hr.inthingy.communication;
 
+import android.content.Context;
+import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.BufferedWriter;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.net.ServerSocket;
+import java.io.OutputStreamWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+
+import zemris.fer.hr.inthingy.utils.Constants;
 
 
 public class CommunicationTask {
 
-    public CommunicationTask(String destIP, String destPort, byte[] message) {
-        Thread clientThread = new Thread(new SendMessageThread(destIP, destPort, message));
-        clientThread.start();
+    private Context mContext;
+
+    public CommunicationTask(final String destIP, final String destPort, final byte[] message, Context context) {
+        mContext = context;
+        (new SendToServerTask()).execute(destIP, destPort, new String(message));
     }
 
     /**
-     * Thread for sending message.
+     * Async task for sending given message to server.
      */
-    private class SendMessageThread extends Thread {
-
-        private Socket clientSocket;
-        private byte[] message;
-
-        private SendMessageThread(String destIP, String destPort, byte[] message) {
-            this.message = message;
-            try {
-                clientSocket = new Socket(destIP, Integer.valueOf(destPort));
-            } catch (Exception e1) {
-                Log.e("SendMessageThread", e1.getMessage());
-            }
-        }
+    public class SendToServerTask extends AsyncTask<String, String, String> {
 
         @Override
-        public void run() {
-            OutputStream outputStream;
+        protected String doInBackground(String... params) {
+            String destIP = params[0];
+            int destPort = Integer.valueOf(params[1]);
+            String message = params[2];
+            BufferedWriter out = null;
+            BufferedReader in = null;
+            Socket socket = new Socket();
             try {
-                outputStream = clientSocket.getOutputStream();
-                PrintStream printStream = new PrintStream(outputStream);
-                printStream.print(new String(message));
-                printStream.close();
-                Thread socketServerThread = new Thread(new RecieveMessageThread(clientSocket.getLocalPort()));
-                socketServerThread.start();
-            } catch (IOException e) {
-                Log.e("SendMessageThread", e.toString());
+                socket.connect(new InetSocketAddress(destIP, destPort), 5000);
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                out.write(message + "\r\n");
+                out.flush();
+                String msg = in.readLine();
+                Log.e("COMM got message", msg);
+
+            } catch (Exception e) {
+                Log.e("COMM exception", e.getMessage());
+                return Constants.STRING_ERROR;
             } finally {
                 try {
-                    clientSocket.close();
-                } catch (IOException e) {
-                    //do nothing
+                    if (out != null) {
+                        out.close();
+                    }
+                    if (in != null) {
+                        in.close();
+                    }
+                    socket.close();
+                } catch (Exception e) {
+                    //ignore
                 }
             }
-
-        }
-
-    }
-
-    /**
-     * Recieve message thread
-     */
-    private class RecieveMessageThread extends Thread {
-
-        private ServerSocket serverSocket;
-
-        private RecieveMessageThread(int serverPort) {
-            try {
-                serverSocket = new ServerSocket(serverPort);
-            } catch (IOException e) {
-                //do nothing
-            }
+            return Constants.STRING_OK;
         }
 
         @Override
-        public void run() {
-            try {
-                Socket socket = serverSocket.accept();
-                BufferedReader input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                while (!Thread.currentThread().isInterrupted()) {
-                    String read = input.readLine();
-                    if ("idle".equals(read)) {
-                        break;
-                    } else {
-                        Log.d("RECIEVED", read);
-                    }
-                }
-            } catch (IOException e) {
-                Log.e("CommServiceServerThread", e.getMessage());
-            }
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
         }
-
     }
-
-
 }
