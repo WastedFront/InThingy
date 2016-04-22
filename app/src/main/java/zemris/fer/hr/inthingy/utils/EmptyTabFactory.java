@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.custom;
+package zemris.fer.hr.inthingy.utils;
 
 import android.content.Context;
 import android.view.View;

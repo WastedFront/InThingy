@@ -2,7 +2,6 @@ package zemris.fer.hr.inthingy.communication;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -12,20 +11,55 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
+import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.utils.Constants;
+import zemris.fer.hr.inthingy.utils.MyUtils;
 
-
+/**
+ * Class for handling communication with destination.
+ * For now it can only send data through Internet.
+ */
 public class CommunicationTask {
 
+    /**
+     * Context of some activity which uses this class.
+     */
     private Context mContext;
 
-    public CommunicationTask(final String destIP, final String destPort, final byte[] message, Context context) {
+    /**
+     * Constructor with multiple parameters.
+     *
+     * @param destIP
+     *         IP adress of destination
+     * @param destPort
+     *         Port on which destination is listening
+     * @param message
+     *         Message for sending
+     * @param context
+     *         context of some activity
+     * @param sendMode
+     *         how message will be send (through Internet, Bluetooth, Wi-Fi).
+     */
+    public CommunicationTask(String destIP, String destPort, byte[] message, Context context, String sendMode) {
         mContext = context;
-        (new SendToServerTask()).execute(destIP, destPort, new String(message));
+        switch (sendMode) {
+            case "Internet":
+                if (MyUtils.isNetworkAvailable(context)) {
+                    (new SendToServerTask()).execute(destIP, destPort, new String(message));
+                } else {
+                    Toast.makeText(context, context.getResources().getText(R.string.error_no_internet_conn),
+                            Toast.LENGTH_LONG).show();
+                }
+                break;
+            default:
+                Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
-     * Async task for sending given message to server.
+     * Task for sending message to some cloud using Internet.
+     * It needs 3 parameters send to {#link doInBackground} method in following order:
+     * DESTINATION_IP, DESTINATION_PORT, MESSAGE.
      */
     public class SendToServerTask extends AsyncTask<String, String, String> {
 
@@ -43,11 +77,12 @@ public class CommunicationTask {
                 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 out.write(message + "\r\n");
                 out.flush();
-                String msg = in.readLine();
-                Log.e("COMM got message", msg);
+                String returnMessage = in.readLine();
+                if (!"idle".equals(returnMessage.toLowerCase())) {
+                    //something
+                }
 
             } catch (Exception e) {
-                Log.e("COMM exception", e.getMessage());
                 return Constants.STRING_ERROR;
             } finally {
                 try {

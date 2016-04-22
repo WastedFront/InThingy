@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import zemris.fer.hr.inthingy.custom.DataForSpinnerTask;
-import zemris.fer.hr.inthingy.custom.EmptyTabFactory;
 import zemris.fer.hr.inthingy.gps.GPSLocator;
 import zemris.fer.hr.inthingy.messages.MessageReplyService;
 import zemris.fer.hr.inthingy.sensors.DeviceSensors;
 import zemris.fer.hr.inthingy.utils.Constants;
+import zemris.fer.hr.inthingy.utils.EmptyTabFactory;
 import zemris.fer.hr.inthingy.utils.MyUtils;
 
 /**
@@ -206,11 +206,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             Toast.makeText(getApplicationContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    public void selectedIndices(List<Integer> indices) {
     }
 
     @Override

@@ -95,16 +95,19 @@ public class MyUtils {
         if (message == null) {
             return;
         }
-        switch (sendMode) {
-            case "Internet":
-                new CommunicationTask(destinationIP, destinationPort, message, context);
-                break;
-            default:
-                Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
-        }
-
+        new CommunicationTask(destinationIP, destinationPort, message, context, sendMode);
     }
 
+    /**
+     * Method for creating message.
+     *
+     * @param deviceId
+     * @param encryption
+     * @param sensorDataMap
+     * @param destinationID
+     * @param context
+     * @return
+     */
     private static byte[] createMessage(String deviceId, String encryption, Map<String, String> sensorDataMap,
                                         String destinationID, Context context) {
         byte[] header = createHeader(deviceId, destinationID);
@@ -129,6 +132,16 @@ public class MyUtils {
     }
 
 
+    /**
+     * Method for creating header. Header is in following format: message_id, source_id, destination_id.
+     * Message id is random 64bit number, also source and destination id are 64bit strings.
+     *
+     * @param deviceId
+     *         current device id which will be source id
+     * @param destinationID
+     *         id of destination device
+     * @return message header as byte array
+     */
     private static byte[] createHeader(String deviceId, String destinationID) {
         byte[] messageId = new byte[8];
         random.nextBytes(messageId);
@@ -137,6 +150,15 @@ public class MyUtils {
     }
 
 
+    /**
+     * Method for encrypting message.
+     *
+     * @param message
+     *         message as byte array
+     * @param encryption
+     *         type of the encryption (NONE, HMAC, FULL, DATA)
+     * @return encrypted message as byte array
+     */
     private static byte[] encryptMessage(byte[] message, String encryption) {
         switch (encryption) {
             case "NONE":
