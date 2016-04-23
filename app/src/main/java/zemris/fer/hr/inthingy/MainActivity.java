@@ -1,5 +1,6 @@
 package zemris.fer.hr.inthingy;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,8 +13,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -39,7 +42,7 @@ import zemris.fer.hr.inthingy.utils.MyUtils;
  * Activity for displaying main screen. It provides user options to send new message or to see received messages.
  * When application is loaded, it needs to populate {@link com.guna.libmultispinner.MultiSelectionSpinner} with
  * available sensors on device.
- * It handles sending messages where user needs to choose sensor which data will be sent.
+ * Also it provides to start service for automatic reply to received messages.
  */
 public class MainActivity extends AppCompatActivity implements MultiSelectionSpinner.OnMultipleItemsSelectedListener,
         View.OnClickListener {
@@ -64,14 +67,20 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         initializeElements();
-        gpsService = new Intent(this, GPSLocator.class);
-        sensorService = new Intent(this, DeviceSensors.class);
-        autoReplyService = new Intent(this, MessageReplyService.class);
+        initializeServices();
         if (savedInstanceState == null) {
             (new DataForSpinnerTask(MainActivity.this, spDeviceSensors)).execute();
         }
+    }
+
+    /**
+     * Method for initializing services which are used by application.
+     */
+    private void initializeServices() {
+        gpsService = new Intent(this, GPSLocator.class);
+        sensorService = new Intent(this, DeviceSensors.class);
+        autoReplyService = new Intent(this, MessageReplyService.class);
     }
 
     /**
@@ -139,6 +148,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopService(gpsService);
+        stopService(sensorService);
+        stopService(autoReplyService);
+    }
+
+    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(Constants.KEY_DEVICE_ID, etDeviceId.getText().toString());
@@ -185,27 +202,69 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         int id = item.getItemId();
         //service for automatic message reply
         if (id == R.id.menuAutoReply) {
-            Drawable offIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_off);
-            Drawable onIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_on);
-            if (item.getIcon().getConstantState().equals(onIcon.getConstantState())) {
-                item.setIcon(offIcon);
-                Toast.makeText(getApplicationContext(), R.string.text_autoreply_off, Toast.LENGTH_SHORT).show();
-                if (flagAutoReply) {
-                    stopService(autoReplyService);
-                    flagAutoReply = false;
-                }
-            } else {
-                item.setIcon(onIcon);
-                Toast.makeText(getApplicationContext(), R.string.text_autoreply_on, Toast.LENGTH_SHORT).show();
-                if (!flagAutoReply) {
-                    startService(autoReplyService);
-                    flagAutoReply = true;
-                }
-            }
+            activateAutoReply(item);
         } else if (id == R.id.menuShowMessages) { //button for showing messages
-            Toast.makeText(getApplicationContext(), "Not yet implemented", Toast.LENGTH_SHORT).show();
+            showReceivedMessages();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Method for showing received messages. It also provides respond to those messages just by user clicking on them.
+     * It makes {@code AlertDialog} with list view in which there are messages.
+     * On {@code OnItemClickListener} user can automatically reply to message and on {@code OnItemLongClickListener} user
+     * can see full message format.
+     */
+    private void showReceivedMessages() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.text_recevied_messages);
+        ListView modeList = new ListView(this);
+        modeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MainActivity.this, "Some text", Toast.LENGTH_SHORT).show();
+            }
+        });
+        modeList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                Toast.makeText(MainActivity.this, "Some long text", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+        String[] stringArray = new String[]{"Message1", "Message2", "Message3", "Message4"};
+        ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+                android.R.id.text1, stringArray);
+        modeList.setAdapter(modeAdapter);
+        builder.setView(modeList);
+        final Dialog dialog = builder.create();
+        dialog.show();
+    }
+
+    /**
+     * Method for handling auto-reply menu item press.
+     *
+     * @param item
+     *         menu item of auto-reply
+     */
+    private void activateAutoReply(MenuItem item) {
+        Drawable offIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_off);
+        Drawable onIcon = ContextCompat.getDrawable(getApplicationContext(), R.drawable.icon_auto_reply_on);
+        if (item.getIcon().getConstantState().equals(onIcon.getConstantState())) {
+            item.setIcon(offIcon);
+            Toast.makeText(getApplicationContext(), R.string.text_autoreply_off, Toast.LENGTH_SHORT).show();
+            if (flagAutoReply) {
+                stopService(autoReplyService);
+                flagAutoReply = false;
+            }
+        } else {
+            item.setIcon(onIcon);
+            Toast.makeText(getApplicationContext(), R.string.text_autoreply_on, Toast.LENGTH_SHORT).show();
+            if (!flagAutoReply) {
+                startService(autoReplyService);
+                flagAutoReply = true;
+            }
+        }
     }
 
     @Override
@@ -336,7 +395,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             sensorDataMap.put(name, value);
         }
         if (spDeviceSensors.getSelectedStrings().size() > 0) {
-            //update value
             String tabName = tabHost.getCurrentTabTag();
             String text = MainActivity.this.getString(R.string.name_sensor) + ": " + tabName + "\n" + sensorDataMap.get(tabName);
             tvSensorData.setText(text);

@@ -63,7 +63,8 @@ public class GPSLocator extends Service {
         boolean locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
         if (locationPerm1 && locationPerm2) {
-            Toast.makeText(getApplicationContext(), R.string.error_no_location_perms, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.error_no_location_perms,
+                    Toast.LENGTH_LONG).show();
         }
         //check which connectivity you can use to get data
         if (isNetworkEnabled) {
@@ -78,7 +79,8 @@ public class GPSLocator extends Service {
 
         //if you can't get data, stop service
         if ((!isGPSEnabled || locationPerm1 || locationPerm2) && !isNetworkEnabled) {
-            Toast.makeText(getApplicationContext(), R.string.error_cant_get_location, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.error_cant_get_location,
+                    Toast.LENGTH_LONG).show();
             stopSelf();
         }
     }
@@ -95,11 +97,11 @@ public class GPSLocator extends Service {
 
         StringBuilder locationString = new StringBuilder();
         locationString.append(getString(R.string.latitude)).append(": ")
-                .append(0.0).append("\u00B0\n")
+                .append(0.0).append(" \u00B0\n")
                 .append(getString(R.string.longitude)).append(": ")
-                .append(0.0).append("\u00B0\n")
+                .append(0.0).append(" \u00B0\n")
                 .append(getString(R.string.altitude)).append(": ")
-                .append(0.0).append("\u00B0");
+                .append(0.0).append(" \u00B0");
         MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                 .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
     }
@@ -141,11 +143,11 @@ public class GPSLocator extends Service {
             lastLocation.set(location);
             StringBuilder locationString = new StringBuilder();
             locationString.append(getString(R.string.latitude)).append(": ")
-                    .append(location.getLatitude()).append("\u00B0\n")
+                    .append(location.getLatitude()).append(" \u00B0\n")
                     .append(getString(R.string.longitude)).append(": ")
-                    .append(location.getLongitude()).append("\u00B0\n")
+                    .append(location.getLongitude()).append(" \u00B0\n")
                     .append(getString(R.string.altitude)).append(": ")
-                    .append(location.getAltitude()).append("\u00B0");
+                    .append(location.getAltitude()).append(" \u00B0");
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
         }

@@ -28,6 +28,8 @@ public class Constants {
     public static final String KEY_SEND_MODE = "SEND_MODE";
     /** Key for device id string. */
     public static final String KEY_DEVICE_ID = "DEVICE_ID";
+    /** Key for getting received messages. */
+    public static String KEY_RECEIVED_MESSAGES = "RECEIVED_MESSAGES";
     /** Regex for checking destination, format is: IP_ADDR:PORT DEST_THING_NAME */
     public static final String REGEX_DESTINATION_FORMAT = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})\\s+[a-zA-Z0-9\\_\\-]+";
 }

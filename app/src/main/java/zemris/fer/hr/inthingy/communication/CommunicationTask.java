@@ -65,19 +65,20 @@ public class CommunicationTask {
 
         @Override
         protected String doInBackground(String... params) {
-            String destIP = params[0];
-            int destPort = Integer.valueOf(params[1]);
-            String message = params[2];
             BufferedWriter out = null;
             BufferedReader in = null;
             Socket socket = new Socket();
             try {
+                String destIP = params[0];
+                int destPort = Integer.valueOf(params[1]);
+                String message = params[2];
                 socket.connect(new InetSocketAddress(destIP, destPort), 5000);
                 in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
                 out.write(message + "\r\n");
                 out.flush();
                 String returnMessage = in.readLine();
+                //if return message is different then idle, it will be stored so it can be replied to
                 if (!"idle".equals(returnMessage.toLowerCase())) {
                     //something
                 }

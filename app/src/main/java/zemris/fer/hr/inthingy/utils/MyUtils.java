@@ -5,7 +5,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.widget.Toast;
 
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -84,6 +83,23 @@ public class MyUtils {
     }
 
 
+    /**
+     * Method for creating and sending message to some cloud (server), or to some other thing.
+     *
+     * @param deviceId
+     *         source id
+     * @param encryption
+     *         type of encryption (NONE, HMAC, FULL, DATA).
+     * @param sendMode
+     *         mode which tells how message will be send (Internet, Bluetooth, Wi-Fi).
+     * @param destinationFormat
+     *         properly formatted string for destination in following format:
+     *         "DESTINATION_IP:DESTINATION_PORT DESTINATION_NAME".
+     * @param sensorDataMap
+     *         map containing data about sensor's and their values
+     * @param context
+     *         context of some activity
+     */
     public static void sendMessage(String deviceId, String encryption, String sendMode, String destinationFormat,
                                    Map<String, String> sensorDataMap, Context context) {
         String[] splitDestinationFormat = destinationFormat.split(" ");
@@ -99,14 +115,22 @@ public class MyUtils {
     }
 
     /**
-     * Method for creating message.
+     * Method for creating message. It needs to get multiple parameters. Message consists of header and data.
+     * Header consists of message_id, source_id, destination_id (all parameters are 64 bit long).
+     * It uses data from {#parameter sensorDataMap} and it parses it in JSON format.
+     * Also it encrypt message if needed.
      *
      * @param deviceId
+     *         source id
      * @param encryption
+     *         type of encryption (NONE, HMAC, FULL, DATA).
      * @param sensorDataMap
+     *         map containing data about sensor's and their values
      * @param destinationID
+     *         destination id
      * @param context
-     * @return
+     *         context of some activity
+     * @return properly formatted message as byte array.
      */
     private static byte[] createMessage(String deviceId, String encryption, Map<String, String> sensorDataMap,
                                         String destinationID, Context context) {
@@ -114,8 +138,16 @@ public class MyUtils {
         JSONObject jsonData = new JSONObject();
         for (Map.Entry<String, String> entry : sensorDataMap.entrySet()) {
             try {
-                jsonData.put(entry.getKey(), entry.getValue());
-            } catch (JSONException e) {
+                String value = entry.getValue();
+                String key = entry.getKey().toUpperCase();
+                String[] lines = value.split("\n");
+                for (String line : lines) {
+                    String[] lineSplit = line.split(": ");
+                    String valueName = lineSplit[0].trim().toUpperCase();
+                    String valueNumber = lineSplit[1].substring(0, lineSplit[1].indexOf(' ') - 1);
+                    jsonData.put(key + "-" + valueName, Float.valueOf(valueNumber));
+                }
+            } catch (Exception e) {
                 Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
                 return null;
             }
