@@ -2,9 +2,12 @@ package zemris.fer.hr.inthingy.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
+import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -14,6 +17,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Random;
@@ -28,6 +32,53 @@ public class MyUtils {
 
     /** Generator for message ID. */
     private static final Random random = new Random();
+
+
+    /**
+     * Method for storing array in {@code SharedPreferences} in JSON format and getting the same thing out depending
+     * on given flag.
+     *
+     * @param context
+     *         Some context
+     * @param key
+     *         key for stored value
+     * @param value
+     *         value if there needs to be stored
+     * @param flag
+     *         if true then given value will be stored in preferences, otherwise list of messages will be given.
+     * @return list of messages if flag is false, otherwise null
+     */
+    public synchronized static ArrayList<String> stringArrayPref(Context context, String key, String value, boolean flag) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String json = prefs.getString(key, null);
+        try {
+            if (flag) {
+                SharedPreferences.Editor editor = prefs.edit();
+                JSONArray jsonArray;
+                if (json == null) {
+                    jsonArray = new JSONArray();
+                } else {
+                    jsonArray = new JSONArray(json);
+                }
+                jsonArray.put(value);
+                editor.putString(key, jsonArray.toString());
+                editor.apply();
+                return null;
+            } else {
+                ArrayList<String> messages = new ArrayList<>();
+                if (json != null) {
+                    JSONArray a = new JSONArray(json);
+                    for (int i = 0; i < a.length(); ++i) {
+                        messages.add(a.optString(i));
+                    }
+                }
+                return messages;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     /**
      * Method for checking if network is available and connected.

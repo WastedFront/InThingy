@@ -39,8 +39,7 @@
         <provider
             android:name="com.gdubina.multiprocesspreferences.MultiprocessPreferences"
             android:authorities="@string/multiprocess_preferences_authority"
-            android:exported="false"
-            />
+            android:exported="false"/>
     </application>
 
 </manifest>

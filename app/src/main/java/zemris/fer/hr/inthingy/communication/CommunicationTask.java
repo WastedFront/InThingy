@@ -80,7 +80,7 @@ public class CommunicationTask {
                 String returnMessage = in.readLine();
                 //if return message is different then idle, it will be stored so it can be replied to
                 if (!"idle".equals(returnMessage.toLowerCase())) {
-                    //something
+                    MyUtils.stringArrayPref(mContext, Constants.KEY_RECEIVED_MESSAGES, returnMessage, true);
                 }
 
             } catch (Exception e) {

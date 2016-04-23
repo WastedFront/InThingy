@@ -25,6 +25,7 @@ import android.widget.Toast;
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 import com.guna.libmultispinner.MultiSelectionSpinner;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -148,14 +149,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        stopService(gpsService);
-        stopService(sensorService);
-        stopService(autoReplyService);
-    }
-
-    @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putString(Constants.KEY_DEVICE_ID, etDeviceId.getText().toString());
@@ -219,6 +212,11 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(R.string.text_recevied_messages);
         ListView modeList = new ListView(this);
+        List<String> msgs = MyUtils.stringArrayPref(MainActivity.this, Constants.KEY_RECEIVED_MESSAGES, null, false);
+        final List<String> messages = msgs != null ? msgs : new ArrayList<String>();
+        ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
+                android.R.id.text2, messages.toArray(new String[messages.size()]));
+        modeList.setAdapter(modeAdapter);
         modeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -228,14 +226,15 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         modeList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Some long text", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+                alertDialogBuilder
+                        .setMessage(messages.get(position))
+                        .setCancelable(true);
+                AlertDialog alertDialog = alertDialogBuilder.create();
+                alertDialog.show();
                 return false;
             }
         });
-        String[] stringArray = new String[]{"Message1", "Message2", "Message3", "Message4"};
-        ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                android.R.id.text1, stringArray);
-        modeList.setAdapter(modeAdapter);
         builder.setView(modeList);
         final Dialog dialog = builder.create();
         dialog.show();
@@ -272,7 +271,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         tabHost.clearAllTabs();
         sensorDataMap.clear();
         tvSensorData.setText(R.string.text_sensor_data_default);
-
         if (strings != null && strings.size() > 0) {
             for (int i = 0; i < strings.size(); ++i) {
                 String name = strings.get(i);
