@@ -13,15 +13,15 @@ import com.guna.libmultispinner.MultiSelectionSpinner;
 import java.util.ArrayList;
 import java.util.List;
 
+import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.utils.Constants;
+import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
  * Task for getting all sensors that device has and populate appropriate spinner with their names.
  */
-public class PopulateMultiSelectionSpinnerTask extends AsyncTask<String, Void, String> {
+public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
 
-    /** Constant representing OK result. */
-    private static final String RESULT_OK = "OK";
     /** Progress dialog. */
     private ProgressDialog progressDialog;
     /** List for sensorNames. */
@@ -39,7 +39,7 @@ public class PopulateMultiSelectionSpinnerTask extends AsyncTask<String, Void, S
      * @param multiSelectionSpinner
      *         multi selection spinner which will be populated with data
      */
-    public PopulateMultiSelectionSpinnerTask(Context mContext, MultiSelectionSpinner multiSelectionSpinner) {
+    public DataForSpinnerTask(Context mContext, MultiSelectionSpinner multiSelectionSpinner) {
         this.mContext = mContext;
         this.multiSelectionSpinner = multiSelectionSpinner;
     }
@@ -49,7 +49,7 @@ public class PopulateMultiSelectionSpinnerTask extends AsyncTask<String, Void, S
         super.onPreExecute();
         sensorNames = new ArrayList<>();
         progressDialog = new ProgressDialog(mContext);
-        progressDialog.setMessage("Finding sensors...");
+        progressDialog.setMessage(mContext.getString(R.string.text_finding_sensors));
         progressDialog.setIndeterminate(false);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.show();
@@ -62,10 +62,12 @@ public class PopulateMultiSelectionSpinnerTask extends AsyncTask<String, Void, S
         List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor : sensorList) {
             sensorNames.add(sensor.getName());
+            StoringUtils.addSensor(mContext, sensor.getName());
         }
         //add GPS
         sensorNames.add(Constants.GPS_SENSOR_NAME);
-        return RESULT_OK;
+        StoringUtils.addSensor(mContext, Constants.GPS_SENSOR_NAME);
+        return Constants.STRING_OK;
     }
 
     @Override
@@ -74,11 +76,10 @@ public class PopulateMultiSelectionSpinnerTask extends AsyncTask<String, Void, S
         if (progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        if (RESULT_OK.equals(result)) {
+        if (Constants.STRING_OK.equals(result)) {
             multiSelectionSpinner.setItems(sensorNames);
-            Toast.makeText(mContext, "All sensors checked", Toast.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(mContext, "Error while checking sensors", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mContext, R.string.error_checking_sensors, Toast.LENGTH_SHORT).show();
         }
 
     }

@@ -11,9 +11,11 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
 
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 
+import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
@@ -21,6 +23,7 @@ import zemris.fer.hr.inthingy.utils.Constants;
  * more accurate.
  * It handles permissions which application needs to have to access those data.
  * If both, GPS and Network, are not enabled, user will have to enable them if he wants to get this data.
+ * Data is stored in local file which can be accessed from multiple threads.
  */
 public class GPSLocator extends Service {
     /** Manager for location */
@@ -28,13 +31,11 @@ public class GPSLocator extends Service {
     /** Constant for location time update interval. */
     private static final int MIN_TIME_BW_UPDATES = 4000; //4 sec
     /** Constant for location move interval. */
-    private static final float MIN_DISTANCE_CHANGE = 50; //50m
+    private static final float MIN_DISTANCE_CHANGE = 50; //50 m
     /** GPS location listener. */
     private MyLocationListener gpsLocationListener = new MyLocationListener(LocationManager.GPS_PROVIDER);
     /** Network location listener. */
     private MyLocationListener networkLocationListener = new MyLocationListener(LocationManager.NETWORK_PROVIDER);
-    /** Flags for location permissions. */
-    private boolean locationPerm1, locationPerm2;
     /** Flag to check if GPS is enabled. */
     private boolean isGPSEnabled = false;
     /** Flag for checking if network is enabled. */
@@ -56,27 +57,38 @@ public class GPSLocator extends Service {
     @Override
     public void onCreate() {
         initialization();
-        locationPerm1 = ActivityCompat.checkSelfPermission(getApplicationContext(),
+        //permission check
+        boolean locationPerm1 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-        locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
+        boolean locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
         if (locationPerm1 && locationPerm2) {
-            this.stopSelf();
+            Toast.makeText(getApplicationContext(), R.string.error_no_location_perms,
+                    Toast.LENGTH_LONG).show();
         }
-        if (isGPSEnabled) {
-            locationManager.requestLocationUpdates(
-                    LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
-                    gpsLocationListener);
-        }
+        //check which connectivity you can use to get data
         if (isNetworkEnabled) {
             locationManager.requestLocationUpdates(
                     LocationManager.NETWORK_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
                     networkLocationListener);
+        } else if (isGPSEnabled && !locationPerm1 && !locationPerm2) {
+            locationManager.requestLocationUpdates(
+                    LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
+                    gpsLocationListener);
+        }
+
+        //if you can't get data, stop service
+        if ((!isGPSEnabled || locationPerm1 || locationPerm2) && !isNetworkEnabled) {
+            Toast.makeText(getApplicationContext(), R.string.error_cant_get_location,
+                    Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.error_cant_get_location,
+                    Toast.LENGTH_LONG).show();
+            stopSelf();
         }
     }
 
     /**
-     * Method for initializing some stuff.
+     * Method for initializing location manager and checking if there is gps or network online.
      */
     private void initialization() {
         if (locationManager == null) {
@@ -84,16 +96,28 @@ public class GPSLocator extends Service {
         }
         isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
         isNetworkEnabled = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
+
+        StringBuilder locationString = new StringBuilder();
+        locationString.append(getString(R.string.latitude)).append(": ")
+                .append(0.0).append(" \u00B0\n")
+                .append(getString(R.string.longitude)).append(": ")
+                .append(0.0).append(" \u00B0\n")
+                .append(getString(R.string.altitude)).append(": ")
+                .append(0.0).append(" \u00B0");
+        MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
+                .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         if (locationManager != null) {
-            locationPerm1 = ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-            locationPerm2 = ActivityCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED &&
+                    ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+                //do nothing
+            }
             locationManager.removeUpdates(gpsLocationListener);
             locationManager.removeUpdates(networkLocationListener);
         }
@@ -101,7 +125,8 @@ public class GPSLocator extends Service {
 
 
     /**
-     * Class which will provide location, it implements {@link android.location.LocationListener}
+     * Class which will provide location, it implements {@link android.location.LocationListener}.
+     * When the location is changed, it's new value is stored in {@link MultiprocessPreferences}.
      */
     private class MyLocationListener implements LocationListener {
 
@@ -119,9 +144,12 @@ public class GPSLocator extends Service {
         public void onLocationChanged(Location location) {
             lastLocation.set(location);
             StringBuilder locationString = new StringBuilder();
-            locationString.append("Latitude: ").append(location.getLatitude()).append("\n")
-                    .append("Longitude: ").append(location.getLongitude()).append("\n")
-                    .append("Altitude: ").append(location.getAltitude());
+            locationString.append(getString(R.string.latitude)).append(": ")
+                    .append(location.getLatitude()).append(" \u00B0\n")
+                    .append(getString(R.string.longitude)).append(": ")
+                    .append(location.getLongitude()).append(" \u00B0\n")
+                    .append(getString(R.string.altitude)).append(": ")
+                    .append(location.getAltitude()).append(" \u00B0");
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
         }
