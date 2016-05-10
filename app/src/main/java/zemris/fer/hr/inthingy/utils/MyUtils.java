@@ -7,6 +7,8 @@ import android.widget.Toast;
 
 import com.guna.libmultispinner.MultiSelectionSpinner;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.List;
@@ -94,7 +96,7 @@ public class MyUtils {
      * Method for getting data from received messages that are stored locally.
      * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;MY_ID;DATA
      *
-     * @return message in following format: THING_ID:\n CMD SENSOR1,SENSOR2, ...
+     * @return message in following format: THING_ID:\n CMD SENSOR1, SENSOR2, ...
      */
     public static String getReceivedMessageInfo(String message) {
         String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
@@ -104,8 +106,15 @@ public class MyUtils {
         try {
             JSONObject jsonObject = new JSONObject(splits[6]);
             String cmd = jsonObject.getString("CMD");
-            String sensors = jsonObject.getString("SENSOR").replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", "");
-            return splits[4] + ":\n" + cmd + " " + sensors;
+            String values = " ";
+            if ("GET".equals(cmd.toUpperCase())) {
+                JSONArray sensorArray = jsonObject.getJSONArray("SENSOR");
+                for (int i = 0, len = sensorArray.length(); i < len - 1; ++i) {
+                    values += sensorArray.getString(i) + ", ";
+                }
+                values += sensorArray.getString(sensorArray.length() - 1);
+            }
+            return splits[4] + ":\n" + cmd + values;
         } catch (Exception e) {
             return Constants.STRING_ERROR;
         }
@@ -127,8 +136,25 @@ public class MyUtils {
         }
         builder.append("SEND MODE:  ").append(splits[0]).append('\n')
                 .append("THING ID:  ").append(splits[4]).append('\n')
-                .append("SOURCE:  ").append(splits[2]).append(':').append(splits[3]).append('\n')
-                .append('\n').append(splits[6]);
+                .append("SOURCE:  ").append(splits[2]).append(':').append(splits[3]).append("\n\n");
+        try {
+            JSONObject jsonObject = new JSONObject(splits[6]);
+            String cmd = jsonObject.getString("CMD");
+            String values = "";
+            if ("GET".equals(cmd.toUpperCase())) {
+                JSONArray sensorArray = jsonObject.getJSONArray("SENSOR");
+                for (int i = 0, len = sensorArray.length(); i < len - 1; ++i) {
+                    values += sensorArray.getString(i) + "\n";
+                }
+                values += sensorArray.getString(sensorArray.length() - 1);
+            }
+            builder.append(cmd).append(':').append('\n');
+            if (!"".equals(values)) {
+                builder.append(values);
+            }
+        } catch (JSONException e) {
+            //do nothing
+        }
         return builder.toString();
     }
 }

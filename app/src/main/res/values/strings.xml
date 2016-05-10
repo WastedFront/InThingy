@@ -47,6 +47,8 @@
     <string name="text_recevied_messages">Received messages</string>
     <string name="text_message_replied">Message replied!</string>
     <string name="text_message_info_title">Message info</string>
+    <string name="message_sent">Message sent!</string>
+    <string name="success">SUCCESS</string>
     <string-array name="encryption_array">
         <item>NONE</item>
     </string-array>

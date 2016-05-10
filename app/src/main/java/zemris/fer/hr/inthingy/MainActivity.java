@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         String title = getResources().getString(R.string.text_recevied_messages);
         builder.setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"));
-        ListView modeList = new ListView(this);
+        ListView listView = new ListView(this);
         final List<String> msgs = StoringUtils.getReceivedMessages(getApplicationContext());
         String[] messages = new String[msgs.size()];
         for (int i = 0, len = msgs.size(); i < len; ++i) {
@@ -226,18 +226,18 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         }
         ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
                 android.R.id.text1, messages);
-        modeList.setAdapter(modeAdapter);
-        builder.setView(modeList);
+        listView.setAdapter(modeAdapter);
+        builder.setView(listView);
         final Dialog dialog = builder.create();
         dialog.show();
-        modeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 MyUtils.respondToMessage(msgs.get(position), MainActivity.this);
                 dialog.dismiss();
             }
         });
-        modeList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 createMessageLongClick(msgs.get(position));
@@ -254,10 +254,12 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private void createMessageLongClick(String message) {
         TextView tvText = new TextView(MainActivity.this);
+        tvText.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Medium);
         tvText.setText(MyUtils.parseStoredReceivedMessage(message));
+        String title = getResources().getString(R.string.text_message_info_title);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
         alertDialogBuilder
-                .setTitle(R.string.text_message_info_title)
+                .setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"))
                 .setView(tvText)
                 .setCancelable(true);
         AlertDialog alertDialog = alertDialogBuilder.create();

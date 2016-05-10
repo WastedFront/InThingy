@@ -3,11 +3,11 @@ package zemris.fer.hr.inthingy.communication;
 import android.content.Context;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Random;
@@ -83,12 +83,19 @@ public class CommUtils {
                 String value = entry.getValue();
                 String key = entry.getKey().toUpperCase();
                 String[] lines = value.split("\n");
+                JSONArray valueArray = new JSONArray();
+                JSONArray nameArray = new JSONArray();
                 for (String line : lines) {
                     String[] lineSplit = line.split(": ");
                     String valueName = lineSplit[0].trim().toUpperCase();
                     String valueNumber = lineSplit[1].substring(0, lineSplit[1].indexOf(' ') - 1);
-                    jsonData.put(key + "-" + valueName, Float.valueOf(valueNumber));
+                    valueArray.put(Float.valueOf(valueNumber));
+                    nameArray.put(valueName);
                 }
+                JSONObject sensorObject = new JSONObject();
+                sensorObject.put("VALUES", valueArray);
+                sensorObject.put("NAMES", nameArray);
+                jsonData.put(key, sensorObject);
             } catch (Exception e) {
                 Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
                 return null;
@@ -117,8 +124,7 @@ public class CommUtils {
      * @return message header as byte array
      */
     private static byte[] createHeader(String deviceId, String destinationID) {
-        BigInteger msgID = new BigInteger(64, random);
-        String header = msgID.toString() + deviceId + destinationID;
+        String header = String.format("%08d", random.nextInt(99999999)) + deviceId + destinationID;
         return header.getBytes(Charset.defaultCharset());
     }
 

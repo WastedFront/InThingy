@@ -1,7 +1,9 @@
 package zemris.fer.hr.inthingy.communication;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.AsyncTask;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -111,7 +113,17 @@ public class CommunicationTask {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            Toast.makeText(mContext, s, Toast.LENGTH_SHORT).show();
+            if (Constants.STRING_OK.equals(s)) {
+                Toast toast = Toast.makeText(mContext, mContext.getResources().getString(R.string.success), Toast.LENGTH_SHORT);
+                TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                v.setTextColor(Color.GREEN);
+                toast.show();
+            } else {
+                Toast toast = Toast.makeText(mContext, mContext.getResources().getString(R.string.error), Toast.LENGTH_SHORT);
+                TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                v.setTextColor(Color.RED);
+                toast.show();
+            }
         }
     }
 }
