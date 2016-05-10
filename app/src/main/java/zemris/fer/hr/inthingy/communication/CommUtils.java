@@ -1,9 +1,7 @@
 package zemris.fer.hr.inthingy.communication;
 
 import android.content.Context;
-import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
@@ -12,7 +10,7 @@ import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Random;
 
-import zemris.fer.hr.inthingy.R;
+import zemris.fer.hr.inthingy.utils.MyUtils;
 import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
@@ -40,20 +38,22 @@ public class CommUtils {
      *         map containing data about sensor's and their values
      * @param context
      *         context of some activity
+     * @return true if everything is ok (that doesn't mean that message is sent), otherwise false
      */
-    public static void sendMessage(String deviceId, String encryption, String sendMode, String destinationFormat,
-                                   Map<String, String> sensorDataMap, Context context) {
+    public static boolean sendMessage(String deviceId, String encryption, String sendMode, String destinationFormat,
+                                      Map<String, String> sensorDataMap, Context context) {
         String[] splitDestinationFormat = destinationFormat.split(" ");
         String[] portIP = splitDestinationFormat[0].split(":");
         String destinationIP = portIP[0];
         String destinationPort = portIP[1];
         String destinationID = splitDestinationFormat[1];
-        byte[] message = createMessage(deviceId, encryption, sensorDataMap, destinationID, context);
+        byte[] message = createMessage(deviceId, encryption, sensorDataMap, destinationID, null);
         if (message == null) {
-            return;
+            return false;
         }
-        new CommunicationTask(destinationIP, destinationPort, message, context, sendMode);
+        new CommunicationTask(destinationIP, destinationPort, message, context, sendMode, true);
         StoringUtils.addDestinationAddress(context, destinationFormat);
+        return true;
     }
 
     /**
@@ -70,34 +70,21 @@ public class CommUtils {
      *         map containing data about sensor's and their values
      * @param destinationID
      *         destination id
-     * @param context
-     *         context of some activity
+     * @param messageID
+     *         ID of the message, if it is null it means it is first message sent to server
      * @return properly formatted message as byte array.
      */
-    private static byte[] createMessage(String deviceId, String encryption, Map<String, String> sensorDataMap,
-                                        String destinationID, Context context) {
-        byte[] header = createHeader(deviceId, destinationID);
+    public static byte[] createMessage(String deviceId, String encryption, Map<String, String> sensorDataMap,
+                                       String destinationID, String messageID) {
+        byte[] header = createHeader(deviceId, destinationID, messageID);
         JSONObject jsonData = new JSONObject();
         for (Map.Entry<String, String> entry : sensorDataMap.entrySet()) {
             try {
                 String value = entry.getValue();
                 String key = entry.getKey().toUpperCase();
-                String[] lines = value.split("\n");
-                JSONArray valueArray = new JSONArray();
-                JSONArray nameArray = new JSONArray();
-                for (String line : lines) {
-                    String[] lineSplit = line.split(": ");
-                    String valueName = lineSplit[0].trim().toUpperCase();
-                    String valueNumber = lineSplit[1].substring(0, lineSplit[1].indexOf(' ') - 1);
-                    valueArray.put(Float.valueOf(valueNumber));
-                    nameArray.put(valueName);
-                }
-                JSONObject sensorObject = new JSONObject();
-                sensorObject.put("VALUES", valueArray);
-                sensorObject.put("NAMES", nameArray);
+                JSONObject sensorObject = MyUtils.parseSensorValueToJSON(value);
                 jsonData.put(key, sensorObject);
             } catch (Exception e) {
-                Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
                 return null;
             }
         }
@@ -106,7 +93,6 @@ public class CommUtils {
             outputStream.write(header);
             outputStream.write(jsonData.toString().getBytes(Charset.defaultCharset()));
         } catch (IOException e) {
-            Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
             return null;
         }
         return encryptMessage(outputStream.toByteArray(), encryption);
@@ -121,10 +107,18 @@ public class CommUtils {
      *         current device id which will be source id
      * @param destinationID
      *         id of destination device
+     * @param messageID
+     *         message ID, it can be null and if it is it will be created
      * @return message header as byte array
      */
-    private static byte[] createHeader(String deviceId, String destinationID) {
-        String header = String.format("%08d", random.nextInt(99999999)) + deviceId + destinationID;
+    private static byte[] createHeader(String deviceId, String destinationID, String messageID) {
+        long num;
+        if (messageID == null) {
+            num = random.nextInt(79999999);
+        } else {
+            num = Long.valueOf(messageID) + 1;
+        }
+        String header = String.format("%08d", num) + deviceId + destinationID;
         return header.getBytes(Charset.defaultCharset());
     }
 

@@ -28,6 +28,10 @@ public class CommunicationTask {
      * Context of some activity which uses this class.
      */
     private Context mContext;
+    /**
+     * Flag to control if toast which says if message is sent or not shows or not.
+     */
+    private boolean show;
 
     /**
      * Constructor with multiple parameters.
@@ -42,9 +46,13 @@ public class CommunicationTask {
      *         context of some activity
      * @param sendMode
      *         how message will be send (through Internet, Bluetooth, Wi-Fi).
+     * @param showSendResult
+     *         flag to control if toast which says if message is sent or not shows or not.
      */
-    public CommunicationTask(String destIP, String destPort, byte[] message, Context context, String sendMode) {
+    public CommunicationTask(String destIP, String destPort, byte[] message, Context context, String sendMode,
+                             boolean showSendResult) {
         mContext = context;
+        show = showSendResult;
         switch (sendMode.toUpperCase()) {
             case "INTERNET":
                 if (MyUtils.isNetworkAvailable(context)) {
@@ -84,7 +92,7 @@ public class CommunicationTask {
                 //if return message is different then idle, it will be stored so it can be replied to
                 if (!"idle".equals(returnMessage.toLowerCase())) {
                     String storeMsg = "Internet" + Constants.RECEIVED_MSG_DELIM   //send mode
-                            + message.substring(0, 7) + Constants.RECEIVED_MSG_DELIM //message id
+                            + message.substring(0, 8) + Constants.RECEIVED_MSG_DELIM //message id
                             + destIP + Constants.RECEIVED_MSG_DELIM // server IP
                             + destPort + Constants.RECEIVED_MSG_DELIM //server port
                             + message.substring(16, 24) + Constants.RECEIVED_MSG_DELIM   //destination id
@@ -113,16 +121,18 @@ public class CommunicationTask {
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-            if (Constants.STRING_OK.equals(s)) {
-                Toast toast = Toast.makeText(mContext, mContext.getResources().getString(R.string.success), Toast.LENGTH_SHORT);
-                TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
-                v.setTextColor(Color.GREEN);
-                toast.show();
-            } else {
-                Toast toast = Toast.makeText(mContext, mContext.getResources().getString(R.string.error), Toast.LENGTH_SHORT);
-                TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
-                v.setTextColor(Color.RED);
-                toast.show();
+            if (show) {
+                if (Constants.STRING_OK.equals(s)) {
+                    Toast toast = Toast.makeText(mContext, mContext.getResources().getString(R.string.success), Toast.LENGTH_SHORT);
+                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                    v.setTextColor(Color.GREEN);
+                    toast.show();
+                } else {
+                    Toast toast = Toast.makeText(mContext, mContext.getResources().getString(R.string.error), Toast.LENGTH_SHORT);
+                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                    v.setTextColor(Color.RED);
+                    toast.show();
+                }
             }
         }
     }

@@ -3,6 +3,7 @@ package zemris.fer.hr.inthingy;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -233,7 +234,19 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                MyUtils.respondToMessage(msgs.get(position), MainActivity.this);
+                if (MyUtils.respondToMessage(msgs.get(position), MainActivity.this)) {
+                    Toast toast = Toast.makeText(MainActivity.this,
+                            MainActivity.this.getResources().getString(R.string.success), Toast.LENGTH_SHORT);
+                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                    v.setTextColor(Color.GREEN);
+                    toast.show();
+                } else {
+                    Toast toast = Toast.makeText(MainActivity.this,
+                            MainActivity.this.getResources().getString(R.string.error), Toast.LENGTH_SHORT);
+                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
+                    v.setTextColor(Color.RED);
+                    toast.show();
+                }
                 dialog.dismiss();
             }
         });
@@ -331,7 +344,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
                     String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
                     String destinationFormat = etDestination.getText().toString();
-                    CommUtils.sendMessage(deviceId, encryption, sendMode, destinationFormat, sensorDataMap, getApplicationContext());
+                    if (!CommUtils.sendMessage(deviceId, encryption, sendMode, destinationFormat, sensorDataMap,
+                            getApplicationContext())) {
+                        Toast toast = Toast.makeText(MainActivity.this,
+                                MainActivity.this.getResources().getString(R.string.error), Toast.LENGTH_SHORT);
+                        TextView tv = (TextView) toast.getView().findViewById(android.R.id.message);
+                        tv.setTextColor(Color.RED);
+                        toast.show();
+                    }
                 }
                 break;
             default:
