@@ -2,84 +2,22 @@ package zemris.fer.hr.inthingy.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
-import android.preference.PreferenceManager;
 import android.widget.Toast;
 
-import org.json.JSONArray;
+import com.guna.libmultispinner.MultiSelectionSpinner;
+
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.Inet4Address;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Random;
+import java.util.List;
 
 import zemris.fer.hr.inthingy.R;
-import zemris.fer.hr.inthingy.communication.CommunicationTask;
+import zemris.fer.hr.inthingy.custom.DataForSpinnerTask;
 
 /**
  * Utility class which contains some method that are used by multiple activities/services.
  */
 public class MyUtils {
-
-    /** Generator for message ID. */
-    private static final Random random = new Random();
-
-
-    /**
-     * Method for storing array in {@code SharedPreferences} in JSON format and getting the same thing out depending
-     * on given flag.
-     *
-     * @param context
-     *         Some context
-     * @param key
-     *         key for stored value
-     * @param value
-     *         value if there needs to be stored
-     * @param flag
-     *         if true then given value will be stored in preferences, otherwise list of messages will be given.
-     * @return list of messages if flag is false, otherwise null
-     */
-    public synchronized static ArrayList<String> stringArrayPref(Context context, String key, String value, boolean flag) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String json = prefs.getString(key, null);
-        try {
-            if (flag) {
-                SharedPreferences.Editor editor = prefs.edit();
-                JSONArray jsonArray;
-                if (json == null) {
-                    jsonArray = new JSONArray();
-                } else {
-                    jsonArray = new JSONArray(json);
-                }
-                jsonArray.put(value);
-                editor.putString(key, jsonArray.toString());
-                editor.apply();
-                return null;
-            } else {
-                ArrayList<String> messages = new ArrayList<>();
-                if (json != null) {
-                    JSONArray a = new JSONArray(json);
-                    for (int i = 0; i < a.length(); ++i) {
-                        messages.add(a.optString(i));
-                    }
-                }
-                return messages;
-            }
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-
     /**
      * Method for checking if network is available and connected.
      *
@@ -111,143 +49,87 @@ public class MyUtils {
         return false;
     }
 
+
     /**
-     * Method for getting IP adress of device if it is connected to the internet.
+     * Method for getting data from received messages that are stored locally.
+     * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
      *
-     * @return valid IP address if everything is ok, ERROR if there is exception and there is return null which will never happen
+     * @return message in following format: CMD SENSOR1,SENSOR2, ...
      */
-    public static String getLocalIpAddress() {
-        try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements(); ) {
-                NetworkInterface networkInterface = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = networkInterface.getInetAddresses(); enumIpAddr.hasMoreElements(); ) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
-                        return inetAddress.getHostAddress();
-                    }
-                }
-            }
-        } catch (SocketException ex) {
+    public static String getReceivedMessageData(String message) {
+        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
+        if (splits.length != 6) {
             return Constants.STRING_ERROR;
         }
-        return null;
-    }
-
-
-    /**
-     * Method for creating and sending message to some cloud (server), or to some other thing.
-     *
-     * @param deviceId
-     *         source id
-     * @param encryption
-     *         type of encryption (NONE, HMAC, FULL, DATA).
-     * @param sendMode
-     *         mode which tells how message will be send (Internet, Bluetooth, Wi-Fi).
-     * @param destinationFormat
-     *         properly formatted string for destination in following format:
-     *         "DESTINATION_IP:DESTINATION_PORT DESTINATION_NAME".
-     * @param sensorDataMap
-     *         map containing data about sensor's and their values
-     * @param context
-     *         context of some activity
-     */
-    public static void sendMessage(String deviceId, String encryption, String sendMode, String destinationFormat,
-                                   Map<String, String> sensorDataMap, Context context) {
-        String[] splitDestinationFormat = destinationFormat.split(" ");
-        String[] portIP = splitDestinationFormat[0].split(":");
-        String destinationIP = portIP[0];
-        String destinationPort = portIP[1];
-        String destinationID = splitDestinationFormat[1];
-        byte[] message = createMessage(deviceId, encryption, sensorDataMap, destinationID, context);
-        if (message == null) {
-            return;
-        }
-        new CommunicationTask(destinationIP, destinationPort, message, context, sendMode);
-    }
-
-    /**
-     * Method for creating message. It needs to get multiple parameters. Message consists of header and data.
-     * Header consists of message_id, source_id, destination_id (all parameters are 64 bit long).
-     * It uses data from {#parameter sensorDataMap} and it parses it in JSON format.
-     * Also it encrypt message if needed.
-     *
-     * @param deviceId
-     *         source id
-     * @param encryption
-     *         type of encryption (NONE, HMAC, FULL, DATA).
-     * @param sensorDataMap
-     *         map containing data about sensor's and their values
-     * @param destinationID
-     *         destination id
-     * @param context
-     *         context of some activity
-     * @return properly formatted message as byte array.
-     */
-    private static byte[] createMessage(String deviceId, String encryption, Map<String, String> sensorDataMap,
-                                        String destinationID, Context context) {
-        byte[] header = createHeader(deviceId, destinationID);
-        JSONObject jsonData = new JSONObject();
-        for (Map.Entry<String, String> entry : sensorDataMap.entrySet()) {
-            try {
-                String value = entry.getValue();
-                String key = entry.getKey().toUpperCase();
-                String[] lines = value.split("\n");
-                for (String line : lines) {
-                    String[] lineSplit = line.split(": ");
-                    String valueName = lineSplit[0].trim().toUpperCase();
-                    String valueNumber = lineSplit[1].substring(0, lineSplit[1].indexOf(' ') - 1);
-                    jsonData.put(key + "-" + valueName, Float.valueOf(valueNumber));
-                }
-            } catch (Exception e) {
-                Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
-                return null;
-            }
-        }
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
-            outputStream.write(header);
-            outputStream.write(jsonData.toString().getBytes(Charset.defaultCharset()));
-        } catch (IOException e) {
-            Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
-            return null;
+            JSONObject jsonObject = new JSONObject(splits[5]);
+            String cmd = jsonObject.getString("CMD");
+            String sensors = jsonObject.getString("SENSOR").replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", "");
+            return cmd + " " + sensors;
+        } catch (Exception e) {
+            return Constants.STRING_ERROR;
         }
-        return encryptMessage(outputStream.toByteArray(), encryption);
     }
 
-
     /**
-     * Method for creating header. Header is in following format: message_id, source_id, destination_id.
-     * Message id is random 64bit number, also source and destination id are 64bit strings.
-     *
-     * @param deviceId
-     *         current device id which will be source id
-     * @param destinationID
-     *         id of destination device
-     * @return message header as byte array
-     */
-    private static byte[] createHeader(String deviceId, String destinationID) {
-        byte[] messageId = new byte[8];
-        random.nextBytes(messageId);
-        String header = (new String(messageId)) + deviceId + destinationID;
-        return header.getBytes(Charset.defaultCharset());
-    }
-
-
-    /**
-     * Method for encrypting message.
+     * Method for formatting received messages that are stored locally in the way they are printable.
+     * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
      *
      * @param message
-     *         message as byte array
-     * @param encryption
-     *         type of the encryption (NONE, HMAC, FULL, DATA)
-     * @return encrypted message as byte array
+     *         message in format  SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
+     * @return message in format for print
      */
-    private static byte[] encryptMessage(byte[] message, String encryption) {
-        switch (encryption) {
-            case "NONE":
-                return message;
-            default:
-                return message;
+    public static String parseStoredReceivedMessage(String message) {
+        StringBuilder builder = new StringBuilder();
+        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
+        if (splits.length != 6) {
+            return Constants.STRING_ERROR;
+        }
+        builder.append("SEND MODE:  ").append(splits[0]).append('\n')
+                .append("THING ID:  ").append(splits[4]).append('\n')
+                .append("SOURCE:  ").append(splits[2]).append(':').append(splits[3]).append('\n')
+                .append('\n').append(splits[5]);
+        return builder.toString();
+    }
+
+    /**
+     * Method for populating given {@code MultiSelectionSpinner} with sensor names.
+     *
+     * @param context
+     *         context of activity which contains spinner
+     * @param spDeviceSensors
+     *         spinner for selecting sensors
+     */
+    public static void getSensors(Context context, MultiSelectionSpinner spDeviceSensors) {
+        List<String> sensors = StoringUtils.getSensors(context);
+        if (sensors == null || sensors.isEmpty()) {
+            (new DataForSpinnerTask(context, spDeviceSensors)).execute();
+        } else {
+            spDeviceSensors.setItems(sensors);
         }
     }
+
+    /**
+     * Method for responding to received message. It parses message and sends response
+     *
+     * @param message
+     *         message in format  SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
+     * @param context
+     *         context of application or main activity
+     */
+    public static void respondToMessage(String message, Context context) {
+        StringBuilder builder = new StringBuilder();
+        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
+        if (splits.length != 6) {
+            Toast.makeText(context, context.getResources().getText(R.string.error), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String sendMode = splits[0];
+        byte[] id = splits[1].getBytes();
+        String destIP = splits[2];
+        String destport = splits[3];
+        String destID = splits[4];
+        StoringUtils.removeReceivedMessage(context, message);
+    }
+
 }

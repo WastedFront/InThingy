@@ -81,6 +81,8 @@ public class GPSLocator extends Service {
         if ((!isGPSEnabled || locationPerm1 || locationPerm2) && !isNetworkEnabled) {
             Toast.makeText(getApplicationContext(), R.string.error_cant_get_location,
                     Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), R.string.error_cant_get_location,
+                    Toast.LENGTH_LONG).show();
             stopSelf();
         }
     }

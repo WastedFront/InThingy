@@ -31,7 +31,7 @@
     <string name="text_all_sensors_checked">All sensors checked</string>
     <string name="error_checking_sensors">Error while checking sensors!</string>
     <string name="error_no_internet_conn">You aren\'t connected to the Internet!\nAbort</string>
-    <string name="error_device_id">Device ID should have 16 characters!\nPlease fix it.</string>
+    <string name="error_device_id">Device ID should have 8 characters!\nPlease fix it.</string>
     <string name="ok">OK</string>
     <string name="illumination">Illumination</string>
     <string name="proximity">Proximity</string>
@@ -45,6 +45,8 @@
     <string name="error_cant_get_location">GPS data can\'t be accessed. Please turn GPS or Network ON.\nIf Network is ON please check flag in Settings-Security to use Network for location.</string>
     <string name="text_menu_show_messages">MESSAGES</string>
     <string name="text_recevied_messages">Received messages</string>
+    <string name="text_message_replied">Message replied!</string>
+    <string name="text_message_info_title">Message info</string>
     <string-array name="encryption_array">
         <item>NONE</item>
     </string-array>
@@ -52,9 +54,8 @@
         <item>Internet</item>
     </string-array>
     <string-array name="some_destinations">
-        <item>192.168.43.135:25000 THING_CLOUD_4455</item>
-        <item>10.0.3.2:25000 THING_CLOUD_1234</item>
-        <item>10.0.2.2:25000 THING_CLOUD_2234</item>
-        <item>10.0.3.15:25000 THING_CLOUD_3344</item>
+        <item>192.168.43.135:25000 THING_12</item>
+        <item>10.0.3.15:25000 THING_44</item>
+        <item>10.129.71.41:25000 THING_45</item>
     </string-array>
 </resources>

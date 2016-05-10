@@ -41,11 +41,11 @@
                 android:text="@string/text_device_id"/>
 
             <EditText
-                android:hint="@string/text_device_id"
                 android:id="@+id/etThingID"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
+                android:hint="@string/text_device_id"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/colorThingIdText"/>
         </LinearLayout>
@@ -142,7 +142,8 @@
                 android:layout_height="match_parent"
                 android:layout_weight="5"
                 android:hint="@string/hint_et_destination"
-                android:inputType="textUri"/>
+                android:inputType="textUri"
+                android:textAppearance="?android:attr/textAppearanceSmall"/>
 
             <Button
                 android:id="@+id/bChooseDestination"

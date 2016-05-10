@@ -14,6 +14,7 @@ import java.net.Socket;
 import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.utils.Constants;
 import zemris.fer.hr.inthingy.utils.MyUtils;
+import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
  * Class for handling communication with destination.
@@ -42,8 +43,8 @@ public class CommunicationTask {
      */
     public CommunicationTask(String destIP, String destPort, byte[] message, Context context, String sendMode) {
         mContext = context;
-        switch (sendMode) {
-            case "Internet":
+        switch (sendMode.toUpperCase()) {
+            case "INTERNET":
                 if (MyUtils.isNetworkAvailable(context)) {
                     (new SendToServerTask()).execute(destIP, destPort, new String(message));
                 } else {
@@ -80,9 +81,15 @@ public class CommunicationTask {
                 String returnMessage = in.readLine();
                 //if return message is different then idle, it will be stored so it can be replied to
                 if (!"idle".equals(returnMessage.toLowerCase())) {
-                    MyUtils.stringArrayPref(mContext, Constants.KEY_RECEIVED_MESSAGES, returnMessage, true);
+                    String storeMsg = "Internet" + Constants.RECEIVED_MSG_DELIM   //send mode
+                            + message.substring(0, 7) + Constants.RECEIVED_MSG_DELIM //message id
+                            + destIP + Constants.RECEIVED_MSG_DELIM // server IP
+                            + destPort + Constants.RECEIVED_MSG_DELIM //server port
+                            + message.substring(8, 16) + Constants.RECEIVED_MSG_DELIM   //my id
+                            + message.substring(16, 24) + Constants.RECEIVED_MSG_DELIM   //destination id
+                            + returnMessage;
+                    StoringUtils.addReceivedMessage(mContext, storeMsg);
                 }
-
             } catch (Exception e) {
                 return Constants.STRING_ERROR;
             } finally {

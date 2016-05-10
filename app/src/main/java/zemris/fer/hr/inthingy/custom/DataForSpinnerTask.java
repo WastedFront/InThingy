@@ -15,6 +15,7 @@ import java.util.List;
 
 import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.utils.Constants;
+import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
  * Task for getting all sensors that device has and populate appropriate spinner with their names.
@@ -61,9 +62,11 @@ public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
         List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor : sensorList) {
             sensorNames.add(sensor.getName());
+            StoringUtils.addSensor(mContext, sensor.getName());
         }
         //add GPS
         sensorNames.add(Constants.GPS_SENSOR_NAME);
+        StoringUtils.addSensor(mContext, Constants.GPS_SENSOR_NAME);
         return Constants.STRING_OK;
     }
 

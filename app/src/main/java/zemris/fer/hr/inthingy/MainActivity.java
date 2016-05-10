@@ -2,7 +2,6 @@ package zemris.fer.hr.inthingy;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -10,6 +9,7 @@ import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,13 +31,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import zemris.fer.hr.inthingy.custom.DataForSpinnerTask;
+import zemris.fer.hr.inthingy.communication.CommUtils;
+import zemris.fer.hr.inthingy.communication.MessageReplyService;
 import zemris.fer.hr.inthingy.gps.GPSLocator;
-import zemris.fer.hr.inthingy.messages.MessageReplyService;
 import zemris.fer.hr.inthingy.sensors.DeviceSensors;
 import zemris.fer.hr.inthingy.utils.Constants;
 import zemris.fer.hr.inthingy.utils.EmptyTabFactory;
 import zemris.fer.hr.inthingy.utils.MyUtils;
+import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
  * Activity for displaying main screen. It provides user options to send new message or to see received messages.
@@ -71,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         initializeElements();
         initializeServices();
         if (savedInstanceState == null) {
-            (new DataForSpinnerTask(MainActivity.this, spDeviceSensors)).execute();
+            MyUtils.getSensors(MainActivity.this, spDeviceSensors);
         }
     }
 
@@ -94,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         etDestination = (EditText) findViewById(R.id.etDestination);
         etDeviceId = (EditText) findViewById(R.id.etThingID);
         String defaultID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        defaultID = defaultID.substring(0, 8);
         etDeviceId.setText(getPreferences(Context.MODE_PRIVATE).getString(Constants.KEY_DEVICE_ID, defaultID));
         int[] buttonIds = new int[]{R.id.bCheckData, R.id.bChooseDestination, R.id.bSendMessage};
         for (int buttonId : buttonIds) {
@@ -163,7 +165,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
 
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        etDestination.setText(savedInstanceState.getString(Constants.KEY_DEVICE_ID));
+        etDeviceId.setText(savedInstanceState.getString(Constants.KEY_DEVICE_ID));
         spDeviceSensors.setItems(savedInstanceState.getStringArray(Constants.KEY_FOUND_SENSORS));
         spDeviceSensors.setSelection(savedInstanceState.getStringArray(Constants.KEY_SEL_SENSORS));
         updateTabHostWithData();
@@ -193,11 +195,16 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        //service for automatic message reply
         if (id == R.id.menuAutoReply) {
             activateAutoReply(item);
-        } else if (id == R.id.menuShowMessages) { //button for showing messages
-            showReceivedMessages();
+        } else if (id == R.id.menuShowMessages) {
+            try {
+                showReceivedMessages();
+            } catch (Exception e) {
+                Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+                //do nothing
+            }
+
         }
         return super.onOptionsItemSelected(item);
     }
@@ -208,36 +215,54 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      * On {@code OnItemClickListener} user can automatically reply to message and on {@code OnItemLongClickListener} user
      * can see full message format.
      */
-    private void showReceivedMessages() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.text_recevied_messages);
+    private void showReceivedMessages() throws Exception {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        String title = getResources().getString(R.string.text_recevied_messages);
+        builder.setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"));
         ListView modeList = new ListView(this);
-        List<String> msgs = MyUtils.stringArrayPref(MainActivity.this, Constants.KEY_RECEIVED_MESSAGES, null, false);
-        final List<String> messages = msgs != null ? msgs : new ArrayList<String>();
+        final List<String> msgs = StoringUtils.getReceivedMessages(getApplicationContext());
+        final List<String> messages = new ArrayList<>();
+        for (String msg : msgs) {
+            messages.add(MyUtils.getReceivedMessageData(msg));
+        }
         ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                android.R.id.text2, messages.toArray(new String[messages.size()]));
+                android.R.id.text1, messages.toArray(new String[messages.size()]));
         modeList.setAdapter(modeAdapter);
+        builder.setView(modeList);
+        final Dialog dialog = builder.create();
+        dialog.show();
         modeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(MainActivity.this, "Some text", Toast.LENGTH_SHORT).show();
+                MyUtils.respondToMessage(msgs.get(position), MainActivity.this);
+                dialog.dismiss();
             }
         });
         modeList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                alertDialogBuilder
-                        .setMessage(messages.get(position))
-                        .setCancelable(true);
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
+                createMessageLongClick(msgs.get(position));
                 return false;
             }
         });
-        builder.setView(modeList);
-        final Dialog dialog = builder.create();
-        dialog.show();
+    }
+
+    /**
+     * Method for handling long click on received messages.
+     *
+     * @param message
+     *         stored received message.
+     */
+    private void createMessageLongClick(String message) {
+        TextView tvText = new TextView(MainActivity.this);
+        tvText.setText(MyUtils.parseStoredReceivedMessage(message));
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder
+                .setTitle(R.string.text_message_info_title)
+                .setView(tvText)
+                .setCancelable(true);
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
     }
 
     /**
@@ -305,7 +330,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
                     String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
                     String destinationFormat = etDestination.getText().toString();
-                    MyUtils.sendMessage(deviceId, encryption, sendMode, destinationFormat, sensorDataMap, MainActivity.this);
+                    CommUtils.sendMessage(deviceId, encryption, sendMode, destinationFormat, sensorDataMap, getApplicationContext());
                 }
                 break;
             default:
@@ -322,7 +347,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private boolean checkAllParameters() {
         String deviceID = etDeviceId.getText().toString();
-        if (deviceID.length() != 16) {
+        if (deviceID.length() != 8) {
             Toast.makeText(getApplicationContext(), R.string.error_device_id, Toast.LENGTH_LONG).show();
             etDeviceId.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorThingIdError));
             return false;
@@ -350,24 +375,24 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      * Method for creating dialog which will display some destination addresses.
      */
     private void chooseDestination() {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setTitle(R.string.text_select_destination);
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(this, android.R.layout.select_dialog_singlechoice,
-                getResources().getStringArray(R.array.some_destinations));
-        dialogBuilder.setNegativeButton(MainActivity.this.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        String title = getResources().getString(R.string.text_select_destination);
+        builder.setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"));
+        ListView modeList = new ListView(this);
+        final String[] addresses = StoringUtils.getDestinationAddresses(getApplicationContext());
+        ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, R.layout.custom_checked_text_view,
+                android.R.id.text1, addresses);
+        modeList.setAdapter(modeAdapter);
+        builder.setView(modeList);
+        final Dialog dialog = builder.create();
+        dialog.show();
+        modeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                etDestination.setText(addresses[position]);
                 dialog.dismiss();
             }
         });
-        dialogBuilder.setAdapter(arrayAdapter, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                etDestination.setText(arrayAdapter.getItem(which));
-                dialog.dismiss();
-            }
-        });
-        dialogBuilder.show();
     }
 
     /**
