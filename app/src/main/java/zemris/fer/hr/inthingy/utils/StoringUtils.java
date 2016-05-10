@@ -196,7 +196,11 @@ public class StoringUtils {
                     return true;
                 }
             }
-            jsonArray.put(address);
+            if (jsonArray.length() == 5) {
+                jsonArray.put(0, address);
+            } else {
+                jsonArray.put(address);
+            }
             editor.putString(Constants.KEY_DESTINATION_ADDRESSES, jsonArray.toString());
             editor.apply();
             return true;

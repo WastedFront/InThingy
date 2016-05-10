@@ -85,8 +85,8 @@ public class CommunicationTask {
                             + message.substring(0, 7) + Constants.RECEIVED_MSG_DELIM //message id
                             + destIP + Constants.RECEIVED_MSG_DELIM // server IP
                             + destPort + Constants.RECEIVED_MSG_DELIM //server port
-                            + message.substring(8, 16) + Constants.RECEIVED_MSG_DELIM   //my id
                             + message.substring(16, 24) + Constants.RECEIVED_MSG_DELIM   //destination id
+                            + message.substring(8, 16) + Constants.RECEIVED_MSG_DELIM   //my id
                             + returnMessage;
                     StoringUtils.addReceivedMessage(mContext, storeMsg);
                 }

@@ -49,49 +49,6 @@ public class MyUtils {
         return false;
     }
 
-
-    /**
-     * Method for getting data from received messages that are stored locally.
-     * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
-     *
-     * @return message in following format: CMD SENSOR1,SENSOR2, ...
-     */
-    public static String getReceivedMessageData(String message) {
-        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
-        if (splits.length != 6) {
-            return Constants.STRING_ERROR;
-        }
-        try {
-            JSONObject jsonObject = new JSONObject(splits[5]);
-            String cmd = jsonObject.getString("CMD");
-            String sensors = jsonObject.getString("SENSOR").replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", "");
-            return cmd + " " + sensors;
-        } catch (Exception e) {
-            return Constants.STRING_ERROR;
-        }
-    }
-
-    /**
-     * Method for formatting received messages that are stored locally in the way they are printable.
-     * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
-     *
-     * @param message
-     *         message in format  SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
-     * @return message in format for print
-     */
-    public static String parseStoredReceivedMessage(String message) {
-        StringBuilder builder = new StringBuilder();
-        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
-        if (splits.length != 6) {
-            return Constants.STRING_ERROR;
-        }
-        builder.append("SEND MODE:  ").append(splits[0]).append('\n')
-                .append("THING ID:  ").append(splits[4]).append('\n')
-                .append("SOURCE:  ").append(splits[2]).append(':').append(splits[3]).append('\n')
-                .append('\n').append(splits[5]);
-        return builder.toString();
-    }
-
     /**
      * Method for populating given {@code MultiSelectionSpinner} with sensor names.
      *
@@ -132,4 +89,46 @@ public class MyUtils {
         StoringUtils.removeReceivedMessage(context, message);
     }
 
+
+    /**
+     * Method for getting data from received messages that are stored locally.
+     * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;MY_ID;DATA
+     *
+     * @return message in following format: THING_ID:\n CMD SENSOR1,SENSOR2, ...
+     */
+    public static String getReceivedMessageInfo(String message) {
+        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
+        if (splits.length != 7) {
+            return Constants.STRING_ERROR;
+        }
+        try {
+            JSONObject jsonObject = new JSONObject(splits[6]);
+            String cmd = jsonObject.getString("CMD");
+            String sensors = jsonObject.getString("SENSOR").replaceAll("\"", "").replaceAll("\\[", "").replaceAll("\\]", "");
+            return splits[4] + ":\n" + cmd + " " + sensors;
+        } catch (Exception e) {
+            return Constants.STRING_ERROR;
+        }
+    }
+
+    /**
+     * Method for formatting received messages that are stored locally in the way they are printable.
+     * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
+     *
+     * @param message
+     *         message in format  SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;MY_ID;DATA
+     * @return message in format for print
+     */
+    public static String parseStoredReceivedMessage(String message) {
+        StringBuilder builder = new StringBuilder();
+        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
+        if (splits.length != 7) {
+            return Constants.STRING_ERROR;
+        }
+        builder.append("SEND MODE:  ").append(splits[0]).append('\n')
+                .append("THING ID:  ").append(splits[4]).append('\n')
+                .append("SOURCE:  ").append(splits[2]).append(':').append(splits[3]).append('\n')
+                .append('\n').append(splits[6]);
+        return builder.toString();
+    }
 }

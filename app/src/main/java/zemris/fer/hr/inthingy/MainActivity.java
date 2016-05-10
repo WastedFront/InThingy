@@ -25,7 +25,6 @@ import android.widget.Toast;
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 import com.guna.libmultispinner.MultiSelectionSpinner;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -221,12 +220,12 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         builder.setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"));
         ListView modeList = new ListView(this);
         final List<String> msgs = StoringUtils.getReceivedMessages(getApplicationContext());
-        final List<String> messages = new ArrayList<>();
-        for (String msg : msgs) {
-            messages.add(MyUtils.getReceivedMessageData(msg));
+        String[] messages = new String[msgs.size()];
+        for (int i = 0, len = msgs.size(); i < len; ++i) {
+            messages[i] = "" + (i + 1) + ". " + MyUtils.getReceivedMessageInfo(msgs.get(i));
         }
         ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                android.R.id.text1, messages.toArray(new String[messages.size()]));
+                android.R.id.text1, messages);
         modeList.setAdapter(modeAdapter);
         builder.setView(modeList);
         final Dialog dialog = builder.create();
