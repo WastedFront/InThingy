@@ -58,7 +58,7 @@ public class CommUtils {
 
     /**
      * Method for creating message. It needs to get multiple parameters. Message consists of header and data.
-     * Header consists of message_id, source_id, destination_id (all parameters are 64 bit long).
+     * Header consists of message_id, source_id, destination_id, previous_message_id (all parameters are 64 bit long).
      * It uses data from {#parameter sensorDataMap} and it parses it in JSON format.
      * Also it encrypt message if needed.
      *
@@ -100,7 +100,7 @@ public class CommUtils {
 
 
     /**
-     * Method for creating header. Header is in following format: message_id, source_id, destination_id.
+     * Method for creating header. Header is in following format: message_id, source_id, destination_id previous_message_id.
      * Message id is random 64bit number, also source and destination id are 64bit strings.
      *
      * @param deviceId
@@ -112,13 +112,15 @@ public class CommUtils {
      * @return message header as byte array
      */
     private static byte[] createHeader(String deviceId, String destinationID, String messageID) {
-        long num;
+        long num, prevNum;
         if (messageID == null) {
-            num = random.nextInt(79999999);
+            prevNum = 0;
+            num = random.nextInt(79999999) + 1; //there can't be null
         } else {
-            num = Long.valueOf(messageID) + 1;
+            prevNum = Long.valueOf(messageID);
+            num = prevNum + 1;
         }
-        String header = String.format("%08d", num) + deviceId + destinationID;
+        String header = String.format("%08d", num) + deviceId + destinationID + String.format("%08d", prevNum);
         return header.getBytes(Charset.defaultCharset());
     }
 

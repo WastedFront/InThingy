@@ -34,7 +34,7 @@ public class StoringUtils {
      *         or message will be deleted
      * @return list of messages if flag is false and value null, otherwise null
      */
-    private synchronized static ArrayList<String> stringArrayPref(Context context, String key, String value, boolean flag) {
+    private static ArrayList<String> stringArrayPref(Context context, String key, String value, boolean flag) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String json = prefs.getString(key, null);
         try {
