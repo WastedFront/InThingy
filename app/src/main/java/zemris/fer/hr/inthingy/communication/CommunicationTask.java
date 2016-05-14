@@ -92,12 +92,12 @@ public class CommunicationTask {
                 //if return message is different then idle, it will be stored so it can be replied to
                 if (!"idle".equals(returnMessage.toLowerCase())) {
                     String storeMsg = "Internet" + Constants.RECEIVED_MSG_DELIM   //send mode
-                            + message.substring(0, 8) + Constants.RECEIVED_MSG_DELIM //message id
+                            + returnMessage.substring(0, 8) + Constants.RECEIVED_MSG_DELIM //message id
                             + destIP + Constants.RECEIVED_MSG_DELIM // server IP
                             + destPort + Constants.RECEIVED_MSG_DELIM //server port
-                            + message.substring(16, 24) + Constants.RECEIVED_MSG_DELIM   //destination id
-                            + message.substring(8, 16) + Constants.RECEIVED_MSG_DELIM   //my id
-                            + returnMessage;
+                            + returnMessage.substring(8, 16) + Constants.RECEIVED_MSG_DELIM   //destination id
+                            + returnMessage.substring(16, 24) + Constants.RECEIVED_MSG_DELIM   //my id
+                            + returnMessage.substring(32); //JSON data
                     StoringUtils.addReceivedMessage(mContext, storeMsg);
                 }
             } catch (Exception e) {
