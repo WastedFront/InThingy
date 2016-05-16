@@ -16,7 +16,7 @@ import zemris.fer.hr.inthingy.R;
 
 /**
  * Class for handling sensor data. For every event, it checks which sensor's data is changed and stores it's new
- * value into the {@link MultiprocessPreferences}.
+ * value into the global map.
  */
 public class DeviceSensors extends Service implements SensorEventListener {
 
@@ -33,39 +33,10 @@ public class DeviceSensors extends Service implements SensorEventListener {
     public void onCreate() {
         super.onCreate();
         sensorManager = (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
-        String value;
         float[] values = new float[]{0, 0, 0};
         for (Sensor sensor : sensorManager.getSensorList(Sensor.TYPE_ALL)) {
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-            switch (sensor.getType()) {
-                case Sensor.TYPE_MAGNETIC_FIELD:
-                case Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
-                    value = makeValueString(new String[]{"x", "y", "z"}, "\u00B5T", values);
-                    break;
-                case Sensor.TYPE_GYROSCOPE:
-                case Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
-                    value = makeValueString(new String[]{"x", "y", "z"}, "rad/s", values);
-                    break;
-                case Sensor.TYPE_GRAVITY:
-                case Sensor.TYPE_LINEAR_ACCELERATION:
-                case Sensor.TYPE_ACCELEROMETER:
-                    value = makeValueString(new String[]{"x", "y", "z"}, "m/s\u00B2", values);
-                    break;
-                case Sensor.TYPE_LIGHT:
-                    value = makeValueString(new String[]{getString(R.string.illumination)}, "lx", values);
-                    break;
-                case Sensor.TYPE_PROXIMITY:
-                    value = makeValueString(new String[]{getString(R.string.proximity)}, "cm", values);
-                    break;
-                case Sensor.TYPE_AMBIENT_TEMPERATURE:
-                    value = makeValueString(new String[]{getString(R.string.temperature)}, "\u2103", values);
-                    break;
-                case Sensor.TYPE_PRESSURE:
-                    value = makeValueString(new String[]{getString(R.string.pressure)}, "hPa", values);
-                    break;
-                default:
-                    value = makeValueString(new String[]{getString(R.string.error)}, "", values);
-            }
+            String value = getValueForSensor(sensor, values);
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(sensor.getName(), value).apply();
         }
@@ -79,39 +50,58 @@ public class DeviceSensors extends Service implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        String value = getValueForSensor(event.sensor, event.values);
+        MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
+                .edit().putString(event.sensor.getName(), value).apply();
+    }
+
+    /**
+     * Method for getting value for given sensor.
+     * Value is in following format:
+     * valueName1: someValue valueUnit\n
+     * valueName2: someValue valueUnit\n
+     * ....
+     *
+     * @param sensor
+     *         sensor
+     * @param values
+     *         float values of sensor
+     * @return properly formatted value string
+     */
+    private String getValueForSensor(Sensor sensor, float[] values) {
         String value;
-        switch (event.sensor.getType()) {
+        switch (sensor.getType()) {
             case Sensor.TYPE_MAGNETIC_FIELD:
             case Sensor.TYPE_MAGNETIC_FIELD_UNCALIBRATED:
-                value = makeValueString(new String[]{"x", "y", "z"}, "\u00B5T", event.values);
+                value = makeValueString(new String[]{"x", "y", "z"}, "\u00B5T", values);
                 break;
             case Sensor.TYPE_GYROSCOPE:
             case Sensor.TYPE_GYROSCOPE_UNCALIBRATED:
-                value = makeValueString(new String[]{"x", "y", "z"}, "rad/s", event.values);
+                value = makeValueString(new String[]{"x", "y", "z"}, "rad/s", values);
                 break;
             case Sensor.TYPE_GRAVITY:
             case Sensor.TYPE_LINEAR_ACCELERATION:
             case Sensor.TYPE_ACCELEROMETER:
-                value = makeValueString(new String[]{"x", "y", "z"}, "m/s\u00B2", event.values);
+                value = makeValueString(new String[]{"x", "y", "z"}, "m/s\u00B2", values);
                 break;
             case Sensor.TYPE_LIGHT:
-                value = makeValueString(new String[]{getString(R.string.illumination)}, "lx", event.values);
+                value = makeValueString(new String[]{getString(R.string.illumination)}, "lx", values);
                 break;
             case Sensor.TYPE_PROXIMITY:
-                value = makeValueString(new String[]{getString(R.string.proximity)}, "cm", event.values);
+                value = makeValueString(new String[]{getString(R.string.proximity)}, "cm", values);
                 break;
             case Sensor.TYPE_AMBIENT_TEMPERATURE:
-                value = makeValueString(new String[]{getString(R.string.temperature)}, "\u2103", event.values);
+                value = makeValueString(new String[]{getString(R.string.temperature)}, "\u2103", values);
                 break;
             case Sensor.TYPE_PRESSURE:
-                value = makeValueString(new String[]{getString(R.string.pressure)}, "hPa", event.values);
+                value = makeValueString(new String[]{getString(R.string.pressure)}, "hPa", values);
                 break;
             default:
-                value = makeValueString(new String[]{getString(R.string.error)}, "", event.values);
+                value = makeValueString(new String[]{getString(R.string.error)}, "", values);
         }
-        MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
-                .edit().putString(event.sensor.getName(), value).apply();
+        return value;
     }
+
 
     /**
      * Method for creating sensor data value.
@@ -139,6 +129,7 @@ public class DeviceSensors extends Service implements SensorEventListener {
         }
         return valueString.toString();
     }
+
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {

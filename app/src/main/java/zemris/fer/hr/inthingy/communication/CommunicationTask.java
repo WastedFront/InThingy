@@ -12,6 +12,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.Charset;
 
 import zemris.fer.hr.inthingy.R;
 import zemris.fer.hr.inthingy.utils.Constants;
@@ -56,7 +57,7 @@ public class CommunicationTask {
         switch (sendMode.toUpperCase()) {
             case "INTERNET":
                 if (MyUtils.isNetworkAvailable(context)) {
-                    (new SendToServerTask()).execute(destIP, destPort, new String(message));
+                    (new SendToServerTask()).execute(destIP, destPort, new String(message, Charset.forName("UTF-8")));
                 } else {
                     Toast.makeText(context, context.getResources().getText(R.string.error_no_internet_conn),
                             Toast.LENGTH_LONG).show();
@@ -81,14 +82,17 @@ public class CommunicationTask {
             Socket socket = new Socket();
             try {
                 String destIP = params[0];
-                int destPort = Integer.valueOf(params[1]);
+                int destPort = Integer.parseInt(params[1]);
                 String message = params[2];
                 socket.connect(new InetSocketAddress(destIP, destPort), 5000);
-                in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+                in = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
+                out = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
                 out.write(message + "\r\n");
                 out.flush();
                 String returnMessage = in.readLine();
+                if (returnMessage == null) {
+                    throw new Exception("Null received msg");
+                }
                 //if return message is different then idle, it will be stored so it can be replied to
                 if (!"idle".equals(returnMessage.toLowerCase())) {
                     String storeMsg = "Internet" + Constants.RECEIVED_MSG_DELIM   //send mode

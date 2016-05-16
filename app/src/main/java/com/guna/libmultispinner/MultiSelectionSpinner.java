@@ -97,7 +97,7 @@ public class MultiSelectionSpinner extends Spinner implements OnMultiChoiceClick
     }
 
     public void setItems(String[] items) {
-        _items = items;
+        System.arraycopy(items, 0, _items, 0, items.length);
         mSelection = new boolean[_items.length];
         mSelectionAtStart = new boolean[_items.length];
         simple_adapter.clear();

@@ -163,15 +163,15 @@ public class MyUtils {
         try {
             JSONObject jsonObject = new JSONObject(splits[6]);
             String cmd = jsonObject.getString("CMD");
-            String values = " ";
+            StringBuilder values = new StringBuilder(" ");
             if ("GET".equals(cmd.toUpperCase())) {
                 JSONArray sensorArray = jsonObject.getJSONArray("SENSOR");
                 for (int i = 0, len = sensorArray.length(); i < len - 1; ++i) {
-                    values += sensorArray.getString(i) + ", ";
+                    values.append(sensorArray.getString(i)).append('\n');
                 }
-                values += sensorArray.getString(sensorArray.length() - 1);
+                values.append(sensorArray.getString(sensorArray.length() - 1));
             }
-            return splits[4] + ":\n" + cmd + values;
+            return splits[4] + ":\n" + cmd + values.toString();
         } catch (Exception e) {
             return Constants.STRING_ERROR;
         }
@@ -197,17 +197,17 @@ public class MyUtils {
         try {
             JSONObject jsonObject = new JSONObject(splits[6]);
             String cmd = jsonObject.getString("CMD");
-            String values = "";
+            StringBuilder values = new StringBuilder();
             if ("GET".equals(cmd.toUpperCase())) {
                 JSONArray sensorArray = jsonObject.getJSONArray("SENSOR");
                 for (int i = 0, len = sensorArray.length(); i < len - 1; ++i) {
-                    values += sensorArray.getString(i) + "\n";
+                    values.append(sensorArray.getString(i)).append('\n');
                 }
-                values += sensorArray.getString(sensorArray.length() - 1);
+                values.append(sensorArray.getString(sensorArray.length() - 1));
             }
             builder.append(cmd).append(':').append('\n');
-            if (!"".equals(values)) {
-                builder.append(values);
+            if (!"".equals(values.toString())) {
+                builder.append(values.toString());
             }
         } catch (JSONException e) {
             //do nothing

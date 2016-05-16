@@ -23,8 +23,8 @@ import zemris.fer.hr.inthingy.R;
  */
 public class MultiprocessPreferences extends ContentProvider {
 
-    public static String PREFFERENCE_AUTHORITY;
-    public static Uri BASE_URI;
+    static String PREFFERENCE_AUTHORITY;
+    static Uri BASE_URI;
 
     private static final String TYPE = "type";
     private static final String KEY = "key";

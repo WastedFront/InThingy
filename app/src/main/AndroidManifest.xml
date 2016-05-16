@@ -24,7 +24,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <service
             android:name=".gps.GPSLocator"
             android:exported="false"
@@ -37,11 +36,9 @@
             android:name=".communication.MessageReplyService"
             android:exported="false"
             android:process=":message_reply_service"/>
-
         <provider
             android:name="com.gdubina.multiprocesspreferences.MultiprocessPreferences"
             android:authorities="@string/multiprocess_preferences_authority"
             android:exported="false"/>
     </application>
-
 </manifest>

@@ -117,7 +117,7 @@ public class CommUtils {
             prevNum = 0;
             num = random.nextInt(79999999) + 1; //there can't be null
         } else {
-            prevNum = Long.valueOf(messageID);
+            prevNum = Long.parseLong(messageID);
             num = prevNum + 1;
         }
         String header = String.format("%08d", num) + deviceId + destinationID + String.format("%08d", prevNum);
