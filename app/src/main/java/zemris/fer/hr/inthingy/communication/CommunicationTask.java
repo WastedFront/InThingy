@@ -20,8 +20,8 @@ import zemris.fer.hr.inthingy.utils.MyUtils;
 import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
- * Class for handling communication with destination.
- * For now it can only send data through Internet.
+ * Class for handling communication with some destination device. It handles all types of connections (Internet, Wi-Fi, Bluetooth).
+ * Currently only communication through Internet is implemented.
  */
 public class CommunicationTask {
 

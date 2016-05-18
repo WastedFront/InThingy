@@ -11,7 +11,11 @@ import zemris.fer.hr.inthingy.utils.MyUtils;
 import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
- * Service for automatic reply for messages that are received.
+ * Service for automatic reply for messages that are received. When application communicates with some server, it can
+ * get some return message which usually tells which sensor's data are needed. Those messages are stored in
+ * {@link  android.content.SharedPreferences}. This service read those messages and then automatically replies to them.
+ * If this service is running and there are no such messages, it will go to sleep for 5 seconds.
+ * Also there is some pause them between two replies which is about 1 second.
  */
 public class MessageReplyService extends Service {
 
@@ -20,6 +24,7 @@ public class MessageReplyService extends Service {
     public void onCreate() {
         super.onCreate();
         while (true) {
+            //get list of messages
             List<String> messages = StoringUtils.getReceivedMessages(getApplicationContext());
             if (messages.size() == 0) {
                 try {
@@ -33,7 +38,7 @@ public class MessageReplyService extends Service {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                //
+                continue;
             }
         }
     }

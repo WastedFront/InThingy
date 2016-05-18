@@ -20,7 +20,7 @@ import zemris.fer.hr.inthingy.communication.CommunicationTask;
 import zemris.fer.hr.inthingy.custom.DataForSpinnerTask;
 
 /**
- * Utility class which contains some method that are used by multiple activities/services.
+ * Utility class which contains some methods that are used by multiple activities/services.
  */
 public class MyUtils {
     /**

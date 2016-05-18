@@ -14,7 +14,7 @@ import zemris.fer.hr.inthingy.utils.MyUtils;
 import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
- * Class providing method for communication with server (sending message, etc).
+ * Class providing methods for creating message which will be send to some destination thing.
  */
 public class CommUtils {
 
@@ -135,7 +135,7 @@ public class CommUtils {
      * @return encrypted message as byte array
      */
     private static byte[] encryptMessage(byte[] message, String encryption) {
-        switch (encryption) {
+        switch (encryption.toUpperCase()) {
             case "NONE":
                 return message;
             default:

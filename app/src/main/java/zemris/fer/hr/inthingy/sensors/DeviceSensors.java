@@ -16,9 +16,10 @@ import zemris.fer.hr.inthingy.R;
 
 /**
  * Service for handling sensors and their data.
- * It uses {@code SensorManager} to register itself for sensor data changes. Class registers for all sensors that are
+ * It uses {@link SensorManager} to register itself for sensor data changes. Class registers for all sensors that are
  * found on current device. List of those sensors can be found <a href="https://developer.android.com/guide/topics/sensors/sensors_overview.html">here</a>
- * When service is going to be destroyed, it unregister itself from {@code SensorManager}.
+ * When service is going to be destroyed, it unregister itself from {@link SensorManager}.
+ * Data is stored in {@link com.gdubina.multiprocesspreferences.MultiprocessPreferences.MultiprocessSharedPreferences}.
  */
 public class DeviceSensors extends Service implements SensorEventListener {
 

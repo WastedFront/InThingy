@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import zemris.fer.hr.inthingy.R;
 
 /**
- * Class provides method for storing values which need to be persistent.
+ * Class provides methods for storing values which need to be persistent.
  */
 public class StoringUtils {
 
@@ -211,6 +211,7 @@ public class StoringUtils {
 
     /**
      * Method for getting some destination addresses which are used lately.
+     * If there are no such addresses, then method will return some default ones saved in {@code strings.xml}.
      *
      * @param context
      *         application context
@@ -219,16 +220,20 @@ public class StoringUtils {
     public static String[] getDestinationAddresses(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String json = prefs.getString(Constants.KEY_DESTINATION_ADDRESSES, null);
-        if (json == null) {
-            return context.getResources().getStringArray(R.array.some_destinations);
-        }
         try {
-            JSONArray jsonArray = new JSONArray(json);
-            String[] messages = new String[jsonArray.length()];
-            for (int i = 0, len = jsonArray.length(); i < len; ++i) {
-                messages[i] = jsonArray.optString(i);
+            if (json == null) {
+                String[] addresses = context.getResources().getStringArray(R.array.some_destinations);
+                for (String address : addresses) {
+                    addDestinationAddress(context, address);
+                }
+                return addresses;
             }
-            return messages;
+            JSONArray jsonArray = new JSONArray(json);
+            String[] addresses = new String[jsonArray.length()];
+            for (int i = 0, len = jsonArray.length(); i < len; ++i) {
+                addresses[i] = jsonArray.optString(i);
+            }
+            return addresses;
         } catch (Exception e) {
             return null;
         }

@@ -20,10 +20,10 @@ import zemris.fer.hr.inthingy.utils.Constants;
 
 /**
  * Class for finding GPS location data. It uses GPS service or Network service, depending on which one is available and
- * more accurate.
- * It handles permissions which application needs to have to access those data.
+ * more accurate. It handles permissions which application needs to have to access those data in a way that it shows
+ * user what the problem is, but it doesn't prompt for permissions.
  * If both, GPS and Network, are not enabled, user will have to enable them if he wants to get this data.
- * Data is stored in local file which can be accessed from multiple threads.
+ * Data is stored in {@link com.gdubina.multiprocesspreferences.MultiprocessPreferences.MultiprocessSharedPreferences}.
  */
 public class GPSLocator extends Service {
     /** Manager for location */
@@ -89,6 +89,7 @@ public class GPSLocator extends Service {
 
     /**
      * Method for initializing location manager and checking if there is gps or network online.
+     * It is also used to store default sensor value into {@code MultiprocessSharedPreferences}.
      */
     private void initialization() {
         if (locationManager == null) {
@@ -111,6 +112,7 @@ public class GPSLocator extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //check permissions
         if (locationManager != null) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED &&
@@ -118,6 +120,7 @@ public class GPSLocator extends Service {
                             != PackageManager.PERMISSION_GRANTED) {
                 //do nothing
             }
+            //unsubsrcibe from location manager
             locationManager.removeUpdates(gpsLocationListener);
             locationManager.removeUpdates(networkLocationListener);
         }
@@ -143,6 +146,7 @@ public class GPSLocator extends Service {
         @Override
         public void onLocationChanged(Location location) {
             lastLocation.set(location);
+            //make value
             StringBuilder locationString = new StringBuilder();
             locationString.append(getString(R.string.latitude)).append(": ")
                     .append(location.getLatitude()).append(" \u00B0\n")
@@ -150,20 +154,24 @@ public class GPSLocator extends Service {
                     .append(location.getLongitude()).append(" \u00B0\n")
                     .append(getString(R.string.altitude)).append(": ")
                     .append(location.getAltitude()).append(" \u00B0");
+            //store value
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(Constants.GPS_SENSOR_NAME, locationString.toString()).apply();
         }
 
         @Override
         public void onProviderDisabled(String provider) {
+            //do nothing
         }
 
         @Override
         public void onProviderEnabled(String provider) {
+            //do nothing
         }
 
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
+            //do nothing
         }
     }
 }
