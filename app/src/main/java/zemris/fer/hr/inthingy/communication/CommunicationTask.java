@@ -94,7 +94,7 @@ public class CommunicationTask {
                     throw new Exception("Null received msg");
                 }
                 //if return message is different then idle, it will be stored so it can be replied to
-                if (!"idle".equals(returnMessage.toLowerCase())) {
+                while (!"idle".equals(returnMessage.toLowerCase())) {
                     String storeMsg = "Internet" + Constants.RECEIVED_MSG_DELIM   //send mode
                             + returnMessage.substring(0, 8) + Constants.RECEIVED_MSG_DELIM //message id
                             + destIP + Constants.RECEIVED_MSG_DELIM // server IP
@@ -103,6 +103,10 @@ public class CommunicationTask {
                             + returnMessage.substring(16, 24) + Constants.RECEIVED_MSG_DELIM   //my id
                             + returnMessage.substring(32); //JSON data
                     StoringUtils.addReceivedMessage(mContext, storeMsg);
+                    returnMessage = in.readLine();
+                    if (returnMessage == null) {
+                        throw new Exception("Null received msg");
+                    }
                 }
             } catch (Exception e) {
                 return Constants.STRING_ERROR;
