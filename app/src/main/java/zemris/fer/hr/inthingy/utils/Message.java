@@ -19,6 +19,14 @@ public class Message {
     private String destID;
     /** Unparsed JSON data. */
     private String jsonData;
+    /** Destination IP. */
+    private String destIP;
+    /** Destination port. */
+    private int destPort;
+    /** Send mode. */
+    private String sendMode;
+    /** Encryption. */
+    private String encryption;
 
     /**
      * Constructor.
@@ -33,14 +41,27 @@ public class Message {
      *         Unparsed JSON data.
      * @param previousMessageID
      *         id of previous message (if exists, otherwise 0)
+     * @param sendMode
+     *         send mode (INTERNET, BLUETOOTH, WI-FI)
+     * @param encryption
+     *         encryption NONE, HMAC, FULL
+     * @param destIP
+     *         IP address of destination
+     * @param destPort
+     *         port of destination
      */
-    public Message(String messageID, String srcID, String destID, String jsonDATA, String previousMessageID) {
+    public Message(String messageID, String srcID, String destID, String jsonDATA, String previousMessageID,
+                   String sendMode, String encryption, String destIP, int destPort) {
         super();
         this.messageID = messageID;
         this.srcID = srcID;
         this.destID = destID;
         this.jsonData = jsonDATA;
         this.previousMessageID = previousMessageID;
+        this.sendMode = sendMode;
+        this.encryption = encryption;
+        this.destIP = destIP;
+        this.destPort = destPort;
     }
 
     /**
@@ -52,25 +73,14 @@ public class Message {
      * @return newly created message.
      */
     public static Message parseReturnMessage(String message) {
-        String msgID = message.substring(0, 8);
-        String srcID = message.substring(8, 16);
-        String destID = message.substring(16, 24);
-        String pMsgID = message.substring(24, 32);
-        String jsonData = message.substring(32);
-        return new Message(msgID, srcID, destID, jsonData, pMsgID);
+//        String msgID = message.substring(0, 8);
+//        String srcID = message.substring(8, 16);
+//        String destID = message.substring(16, 24);
+//        String pMsgID = message.substring(24, 32);
+//        String jsonData = message.substring(32);
+//        return new Message(msgID, srcID, destID, jsonData, pMsgID);
+        return null;
     }
-
-
-    /**
-     * Method for parsing simulator message to client in string format. Return
-     * format of message is: -messageID srcID destID prevMsgID JSON_DATA-.
-     *
-     * @return message in described format
-     */
-    public String makeMessage() {
-        return messageID + srcID + destID + previousMessageID + jsonData;
-    }
-
 
     /**
      * Getter for previous message ID.
@@ -117,10 +127,39 @@ public class Message {
         return jsonData;
     }
 
-    @Override
-    public String toString() {
-        return "Message:\nmessageID=" + messageID + "\nsrcID=" + srcID + "\ndestID=" + destID + "\nprevMessageID="
-                + previousMessageID + "\ndata:" + jsonData + "\n";
+    /**
+     * Getter for destination IP address.
+     *
+     * @return destination IP address
+     */
+    public String getDestIP() {
+        return destIP;
     }
 
+    /**
+     * Getter for destination port.
+     *
+     * @return destination port
+     */
+    public int getDestPort() {
+        return destPort;
+    }
+
+    /**
+     * Getter for encryption.
+     *
+     * @return encryption
+     */
+    public String getEncryption() {
+        return encryption;
+    }
+
+    /**
+     * Getter for send mode.
+     *
+     * @return send mode
+     */
+    public String getSendMode() {
+        return sendMode;
+    }
 }

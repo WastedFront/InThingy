@@ -2,7 +2,7 @@
     <string name="app_name">InThingy</string>
     <string name="text_device_id">Device ID:</string>
     <string name="text_select_sensors">Select sensors:</string>
-    <string name="check_sensors">CHECK</string>
+    <string name="text_button_check_data">DATA</string>
     <string name="text_sensor_data_default"> \n \n \n</string>
     <string name="prompt_spinner_sensors">Choose sensors</string>
     <string name="prompt_spinner_encryption">Choose encryption</string>

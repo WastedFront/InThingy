@@ -344,7 +344,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
                     String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
                     String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
                     String destinationFormat = etDestination.getText().toString();
-                    if (!CommUtils.sendMessage(deviceId, encryption, sendMode, destinationFormat, sensorDataMap,
+                    if (!CommUtils.createAndSendMessage(deviceId, encryption, sendMode, destinationFormat, sensorDataMap,
                             getApplicationContext())) {
                         Toast toast = Toast.makeText(MainActivity.this,
                                 MainActivity.this.getResources().getString(R.string.error), Toast.LENGTH_SHORT);

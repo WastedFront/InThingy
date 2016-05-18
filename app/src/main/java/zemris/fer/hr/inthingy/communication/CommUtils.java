@@ -40,8 +40,8 @@ public class CommUtils {
      *         context of some activity
      * @return true if everything is ok (that doesn't mean that message is sent), otherwise false
      */
-    public static boolean sendMessage(String deviceId, String encryption, String sendMode, String destinationFormat,
-                                      Map<String, String> sensorDataMap, Context context) {
+    public static boolean createAndSendMessage(String deviceId, String encryption, String sendMode, String destinationFormat,
+                                               Map<String, String> sensorDataMap, Context context) {
         String[] splitDestinationFormat = destinationFormat.split(" ");
         String[] portIP = splitDestinationFormat[0].split(":");
         String destinationIP = portIP[0];
