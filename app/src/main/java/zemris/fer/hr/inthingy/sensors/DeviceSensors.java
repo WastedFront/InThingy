@@ -15,12 +15,14 @@ import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 import zemris.fer.hr.inthingy.R;
 
 /**
- * Class for handling sensor data. For every event, it checks which sensor's data is changed and stores it's new
- * value into the global map.
+ * Service for handling sensors and their data.
+ * It uses {@code SensorManager} to register itself for sensor data changes. Class registers for all sensors that are
+ * found on current device. List of those sensors can be found <a href="https://developer.android.com/guide/topics/sensors/sensors_overview.html">here</a>
+ * When service is going to be destroyed, it unregister itself from {@code SensorManager}.
  */
 public class DeviceSensors extends Service implements SensorEventListener {
 
-    /** Sensor manager. */
+    /** Sensor manager which is used to access sensors and their data. */
     private SensorManager sensorManager;
 
     @Override
@@ -32,38 +34,48 @@ public class DeviceSensors extends Service implements SensorEventListener {
     @Override
     public void onCreate() {
         super.onCreate();
+        //get sensor service
         sensorManager = (SensorManager) getApplicationContext().getSystemService(Context.SENSOR_SERVICE);
+        //default values for sensors
         float[] values = new float[]{0, 0, 0};
+        //get list of devices sensors and register for their data changes
         for (Sensor sensor : sensorManager.getSensorList(Sensor.TYPE_ALL)) {
+            //register listener
             sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
+            //make default values for sensors
             String value = getValueForSensor(sensor, values);
+            //save default values for sensors
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                     .edit().putString(sensor.getName(), value).apply();
         }
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //unregister listener from sensor manager
         sensorManager.unregisterListener(this);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        //get sensor and its new value
         String value = getValueForSensor(event.sensor, event.values);
+        //update collection for new sensor data
         MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
                 .edit().putString(event.sensor.getName(), value).apply();
     }
 
     /**
-     * Method for getting value for given sensor.
-     * Value is in following format:
-     * valueName1: someValue valueUnit\n
-     * valueName2: someValue valueUnit\n
-     * ....
+     * Method for getting value for given sensor. In this case sensor values are in float array. That array has 3 elements,
+     * even if sensor has only one data, other elements are 0.0.
+     * Depending on sensor type and its value, this method will return string in following format:
+     * ---  valueName:   value   unit\n---.
+     * List of sensors, their data and units can be found <a href="https://developer.android.com/guide/topics/sensors/sensors_overview.html">here</a>.
      *
      * @param sensor
-     *         sensor
+     *         sensor which data will be used to make valid format of values
      * @param values
      *         float values of sensor
      * @return properly formatted value string
@@ -104,7 +116,8 @@ public class DeviceSensors extends Service implements SensorEventListener {
 
 
     /**
-     * Method for creating sensor data value.
+     * Method for creating sensor data value. Number of elements in {#link valueNames} shows how much valid number
+     * of values are in {#link values}.
      *
      * @param valueNames
      *         array of data names (e.g. x,y,z)
@@ -112,20 +125,20 @@ public class DeviceSensors extends Service implements SensorEventListener {
      *         unit for values
      * @param values
      *         array of sensor values
-     * @return properly formatted string, format is: valueName1: someValue valueUnit\n
+     * @return properly formatted string, format is: valueName:   value   unit\n
      */
     private String makeValueString(String[] valueNames, String unit, float[] values) {
         StringBuilder valueString = new StringBuilder();
         int nameSize = valueNames.length;
         for (int i = 0; i < nameSize; ++i) {
-            valueString.append(valueNames[i]).append(": ").append(values[i]).append(" ").append(unit);
+            valueString.append(valueNames[i]).append(": ").append(values[i]).append(' ').append(unit);
             if (i != (values.length - 1)) {
-                valueString.append("\n");
+                valueString.append('\n');
             }
         }
         while (nameSize < 2) {
             nameSize++;
-            valueString.append("\n");
+            valueString.append('\n');
         }
         return valueString.toString();
     }
