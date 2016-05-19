@@ -2,7 +2,6 @@ package zemris.fer.hr.inthingy.communication;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -17,7 +16,7 @@ import zemris.fer.hr.inthingy.utils.Constants;
 import zemris.fer.hr.inthingy.utils.Message;
 import zemris.fer.hr.inthingy.utils.MyDialogs;
 import zemris.fer.hr.inthingy.utils.MyUtils;
-import zemris.fer.hr.inthingy.utils.ReceivedMessage;
+import zemris.fer.hr.inthingy.utils.ReceivedServerMessage;
 import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
@@ -94,7 +93,7 @@ public class CommunicationTask {
                 //if return message is different then idle, it will be stored so it can be replied to
                 while (!"idle".equals(rtnMsg.toLowerCase())) {
                     String[] encrypt = mContext.getResources().getStringArray(R.array.encryption_array);
-                    ReceivedMessage msg = ReceivedMessage.parseReceivedMessage(rtnMsg, "INTERNET",
+                    ReceivedServerMessage msg = ReceivedServerMessage.parseReceivedMessage(rtnMsg, "INTERNET",
                             encrypt[rtnMsg.charAt(0) - '0'], destIP, "" + destPort);
                     //store received message
                     StoringUtils.addReceivedMessage(mContext, msg);
@@ -105,7 +104,6 @@ public class CommunicationTask {
                     }
                 }
             } catch (Exception e) {
-                Log.e("MMCA", e.toString());
                 return Constants.STRING_ERROR;
             } finally {
                 try {

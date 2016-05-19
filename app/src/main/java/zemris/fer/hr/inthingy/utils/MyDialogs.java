@@ -65,7 +65,7 @@ public class MyDialogs {
         String title = context.getResources().getString(R.string.text_recevied_messages);
         builder.setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"));
         ListView listView = new ListView(context);
-        final List<ReceivedMessage> msgs = StoringUtils.getReceivedMessages(context);
+        final List<ReceivedServerMessage> msgs = StoringUtils.getReceivedMessages(context);
         String[] messages = new String[msgs.size()];
         for (int i = 0, len = msgs.size(); i < len; ++i) {
             messages[i] = "" + (i + 1) + ". " + msgs.get(i).getSrcID() + ": " + msgs.get(i).returnMsgDataInfo();
@@ -101,7 +101,7 @@ public class MyDialogs {
      * @param context
      *         context of some activity
      */
-    private static void createMessageLongClick(ReceivedMessage message, Context context) {
+    private static void createMessageLongClick(ReceivedServerMessage message, Context context) {
         TextView tvText = new TextView(context);
         tvText.setTextAppearance(context, android.R.style.TextAppearance_Medium);
         tvText.setText(message.messageSummary());

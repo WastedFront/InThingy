@@ -11,15 +11,38 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Message that is received from some thing.
+ * Message that is received from some server.
  */
-public class ReceivedMessage extends Message {
+public class ReceivedServerMessage extends Message {
 
+    /** Command of return message. */
     private String cmd;
+    /** Command values. */
     private String cmdValue;
 
-    public ReceivedMessage(String messageID, String srcID, String destID, String jsonData, String previousMessageID,
-                           String sendMode, String encryption, String destIP, int destPort) {
+    /**
+     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be 00000000.
+     * It automatically parses jsonData as CMD and CMD_VALUE.
+     *
+     * @param messageID
+     *         message ID
+     * @param srcID
+     *         source thing ID
+     * @param jsonData
+     *         unparsed JSON data.
+     * @param previousMessageID
+     *         id of previous message (if exists, otherwise null)
+     * @param sendMode
+     *         send mode (INTERNET, BLUETOOTH, WI-FI)
+     * @param encryption
+     *         encryption NONE, HMAC, FULL
+     * @param destIP
+     *         IP address of destination
+     * @param destPort
+     *         port of destination
+     */
+    public ReceivedServerMessage(String messageID, String srcID, String destID, String jsonData, String previousMessageID,
+                                 String sendMode, String encryption, String destIP, int destPort) {
         super(messageID, srcID, destID, jsonData.toUpperCase(), previousMessageID, sendMode, encryption, destIP, destPort);
         try {
             JSONObject jsonObject = new JSONObject(jsonData.toUpperCase());
@@ -39,6 +62,13 @@ public class ReceivedMessage extends Message {
         }
     }
 
+    /**
+     * Method for creating response to this message. Currently it supports only command GET.
+     *
+     * @param context
+     *         application context
+     * @return respond message or null if command is not supported by this method.
+     */
     public Message responseMessage(Context context) {
         if (!isGetCommand()) {
             return null;
@@ -57,6 +87,13 @@ public class ReceivedMessage extends Message {
         );
     }
 
+    /**
+     * Method for parsing GET command values and making JSON data for response message.
+     *
+     * @param context
+     *         application context
+     * @return json data in string format
+     */
     private String handleGetCommand(Context context) {
         String[] splits = cmdValue.split(" ");
         Map<String, String> sensorDataMap = new HashMap<>();
@@ -77,7 +114,7 @@ public class ReceivedMessage extends Message {
      * @return message in following format: COMMAND OTHER_DATA
      */
     public String returnMsgDataInfo() {
-        return cmd + " " + cmdValue;
+        return cmd + ":\n" + cmdValue;
     }
 
     public boolean isGetCommand() {
@@ -105,12 +142,12 @@ public class ReceivedMessage extends Message {
      *         string representation of message
      * @return {@code Message} format
      */
-    public static ReceivedMessage parseStoreMsg(String storeMsg) {
+    public static ReceivedServerMessage parseStoreMsg(String storeMsg) {
         String[] splits = storeMsg.split(Constants.MSG_DELIM);
         if (splits.length != 9) {
             throw new IllegalArgumentException("Illegal message format");
         }
-        return new ReceivedMessage(splits[0], splits[1], splits[2], splits[4], splits[3], splits[5], splits[6], splits[7],
+        return new ReceivedServerMessage(splits[0], splits[1], splits[2], splits[4], splits[3], splits[5], splits[6], splits[7],
                 Integer.parseInt(splits[8]));
     }
 
@@ -138,9 +175,9 @@ public class ReceivedMessage extends Message {
      *         params in following order: received message, send mode, encryption, destination IP, destination port.
      * @return new message
      */
-    public static ReceivedMessage parseReceivedMessage(String... params) {
+    public static ReceivedServerMessage parseReceivedMessage(String... params) {
         String rtnMsg = decryptReceivedMessage(params[0], params[2]);
-        return new ReceivedMessage(
+        return new ReceivedServerMessage(
                 rtnMsg.substring(1, 9),          //message ID
                 rtnMsg.substring(9, 17),        //src ID
                 rtnMsg.substring(17, 25),         //dest ID
