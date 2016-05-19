@@ -55,8 +55,8 @@ public class DataForSpinnerTask extends AsyncTask<String, Void, String> {
         List<Sensor> sensorList = sensorManager.getSensorList(Sensor.TYPE_ALL);
         for (Sensor sensor : sensorList) {
             //get sensor
-            sensorNames.add(sensor.getName());
-            //store sensors so that this task doesn't need to run on every applicaiton startup, only on first
+            sensorNames.add(sensor.getName().toUpperCase());
+            //store sensors so that this task doesn't need to run on every application startup, only on first
             StoringUtils.addSensor(mContext, sensor.getName());
         }
         //add GPS

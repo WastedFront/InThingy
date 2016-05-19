@@ -7,7 +7,7 @@ import android.support.annotation.Nullable;
 
 import java.util.List;
 
-import zemris.fer.hr.inthingy.utils.MyUtils;
+import zemris.fer.hr.inthingy.utils.ReceivedMessage;
 import zemris.fer.hr.inthingy.utils.StoringUtils;
 
 /**
@@ -25,7 +25,7 @@ public class MessageReplyService extends Service {
         super.onCreate();
         while (true) {
             //get list of messages
-            List<String> messages = StoringUtils.getReceivedMessages(getApplicationContext());
+            List<ReceivedMessage> messages = StoringUtils.getReceivedMessages(getApplicationContext());
             if (messages.size() == 0) {
                 try {
                     Thread.sleep(5000);
@@ -34,11 +34,12 @@ public class MessageReplyService extends Service {
                     continue;
                 }
             }
-            MyUtils.respondToMessage(messages.get(0), getApplicationContext());
+            new CommunicationTask(getApplicationContext(), messages.get(0).responseMessage(getApplicationContext()), false);
+            StoringUtils.removeReceivedMessage(getApplicationContext(), messages.get(0));
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                continue;
+                //do nothing
             }
         }
     }

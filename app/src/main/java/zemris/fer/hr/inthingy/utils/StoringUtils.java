@@ -88,8 +88,8 @@ public class StoringUtils {
      * @param message
      *         new message to add
      */
-    public static void addReceivedMessage(Context context, String message) {
-        stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, message, true);
+    public static void addReceivedMessage(Context context, ReceivedMessage message) {
+        stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, message.storeMsgFormat(), true);
     }
 
     /**
@@ -100,8 +100,8 @@ public class StoringUtils {
      * @param message
      *         message which will be removed
      */
-    public static void removeReceivedMessage(Context context, String message) {
-        stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, message, false);
+    public static void removeReceivedMessage(Context context, ReceivedMessage message) {
+        stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, message.storeMsgFormat(), false);
     }
 
     /**
@@ -111,8 +111,15 @@ public class StoringUtils {
      *         some context
      * @return list of messages or ull
      */
-    public static List<String> getReceivedMessages(Context context) {
-        return stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, null, false);
+    public static List<ReceivedMessage> getReceivedMessages(Context context) {
+        List<String> unparsedMsgs = stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, null, false);
+        List<ReceivedMessage> messages = new ArrayList<>();
+        if (unparsedMsgs != null) {
+            for (String unpMsg : unparsedMsgs) {
+                messages.add(ReceivedMessage.parseStoreMsg(unpMsg));
+            }
+        }
+        return messages;
     }
 
     /**

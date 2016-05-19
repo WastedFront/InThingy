@@ -1,23 +1,16 @@
 package zemris.fer.hr.inthingy;
 
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Html;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TabHost;
 import android.widget.TextView;
@@ -31,12 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import zemris.fer.hr.inthingy.communication.CommUtils;
+import zemris.fer.hr.inthingy.communication.CommunicationTask;
 import zemris.fer.hr.inthingy.communication.MessageReplyService;
 import zemris.fer.hr.inthingy.gps.GPSLocator;
 import zemris.fer.hr.inthingy.sensors.DeviceSensors;
 import zemris.fer.hr.inthingy.utils.Constants;
 import zemris.fer.hr.inthingy.utils.EmptyTabFactory;
+import zemris.fer.hr.inthingy.utils.Message;
+import zemris.fer.hr.inthingy.utils.MyDialogs;
 import zemris.fer.hr.inthingy.utils.MyUtils;
 import zemris.fer.hr.inthingy.utils.StoringUtils;
 
@@ -63,7 +58,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     private Intent gpsService, sensorService, autoReplyService;
     /** Flag to check if auto reply is on or off. */
     private boolean flagAutoReply = false;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,6 +127,71 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
     }
 
     @Override
+    public void selectedStrings(final List<String> strings) {
+        tabHost.clearAllTabs();
+        sensorDataMap.clear();
+        tvSensorData.setText(R.string.text_sensor_data_default);
+        if (strings != null && strings.size() > 0) {
+            for (int i = 0; i < strings.size(); ++i) {
+                String name = strings.get(i);
+                //populate map with data
+                String value = MultiprocessPreferences.
+                        getDefaultSharedPreferences(getApplicationContext()).getString(name, Constants.DEFAULT_SENSOR_DATA);
+                sensorDataMap.put(name, value);
+                //add new tabHost
+                TabHost.TabSpec spec = tabHost.newTabSpec(name);
+                spec.setContent(new EmptyTabFactory(MainActivity.this));
+                spec.setIndicator(String.valueOf(i + 1));
+                tabHost.addTab(spec);
+            }
+        } else {  //no selection
+            addTabHostEmptyTab();
+        }
+    }
+
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.bCheckData:
+                checkData();
+                break;
+            case R.id.bChooseDestination:
+                MyDialogs.chooseDestination(MainActivity.this);
+                break;
+            case R.id.bSendMessage:
+                //check if all parameters are in valid format
+                if (checkAllParameters()) {
+                    sendMessage();
+                }
+                break;
+            default:
+                //some error
+                break;
+        }
+    }
+
+    /**
+     * Method for creating and sending message.
+     */
+    private void sendMessage() {
+        String deviceId = etDeviceId.getText().toString();
+        String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
+        String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
+        String destinationFormat = etDestination.getText().toString();
+        String jsonData = MyUtils.createJSONData(sensorDataMap);
+        //try to send message
+        try {
+            Message msg = new Message(null, deviceId, jsonData, null, sendMode, encryption, destinationFormat);
+            new CommunicationTask(getApplicationContext(), msg, true);
+            StoringUtils.addDestinationAddress(getApplicationContext(), destinationFormat);
+        } catch (Exception e) {
+            MyDialogs.makeRedTextToast(this, getResources().getString(R.string.error));
+        }
+    }
+
+
+    @Override
     public void onResume() {
         super.onResume();
         startService(gpsService);
@@ -199,85 +258,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             activateAutoReply(item);
         } else if (id == R.id.menuShowMessages) {
             try {
-                showReceivedMessages();
+                MyDialogs.showReceivedMessages(MainActivity.this);
             } catch (Exception e) {
                 Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_LONG).show();
-                //do nothing
             }
-
         }
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * Method for showing received messages. It also provides respond to those messages just by user clicking on them.
-     * It makes {@code AlertDialog} with list view in which there are messages.
-     * On {@code OnItemClickListener} user can automatically reply to message and on {@code OnItemLongClickListener} user
-     * can see full message format.
-     */
-    private void showReceivedMessages() throws Exception {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String title = getResources().getString(R.string.text_recevied_messages);
-        builder.setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"));
-        ListView listView = new ListView(this);
-        final List<String> msgs = StoringUtils.getReceivedMessages(getApplicationContext());
-        String[] messages = new String[msgs.size()];
-        for (int i = 0, len = msgs.size(); i < len; ++i) {
-            messages[i] = "" + (i + 1) + ". " + MyUtils.getReceivedMessageInfo(msgs.get(i));
-        }
-        ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1,
-                android.R.id.text1, messages);
-        listView.setAdapter(modeAdapter);
-        builder.setView(listView);
-        final Dialog dialog = builder.create();
-        dialog.show();
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (MyUtils.respondToMessage(msgs.get(position), MainActivity.this)) {
-                    Toast toast = Toast.makeText(MainActivity.this,
-                            MainActivity.this.getResources().getString(R.string.success), Toast.LENGTH_SHORT);
-                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
-                    v.setTextColor(Color.GREEN);
-                    toast.show();
-                } else {
-                    Toast toast = Toast.makeText(MainActivity.this,
-                            MainActivity.this.getResources().getString(R.string.error), Toast.LENGTH_SHORT);
-                    TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
-                    v.setTextColor(Color.RED);
-                    toast.show();
-                }
-                dialog.dismiss();
-            }
-        });
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-            @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                createMessageLongClick(msgs.get(position));
-                return false;
-            }
-        });
-    }
-
-    /**
-     * Method for handling long click on received messages.
-     *
-     * @param message
-     *         stored received message.
-     */
-    private void createMessageLongClick(String message) {
-        TextView tvText = new TextView(MainActivity.this);
-        tvText.setTextAppearance(MainActivity.this, android.R.style.TextAppearance_Medium);
-        tvText.setText(MyUtils.parseStoredReceivedMessage(message));
-        String title = getResources().getString(R.string.text_message_info_title);
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-        alertDialogBuilder
-                .setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"))
-                .setView(tvText)
-                .setCancelable(true);
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
-    }
 
     /**
      * Method for handling auto-reply menu item press.
@@ -304,62 +292,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             }
         }
     }
-
-    @Override
-    public void selectedStrings(final List<String> strings) {
-        tabHost.clearAllTabs();
-        sensorDataMap.clear();
-        tvSensorData.setText(R.string.text_sensor_data_default);
-        if (strings != null && strings.size() > 0) {
-            for (int i = 0; i < strings.size(); ++i) {
-                String name = strings.get(i);
-                //populate map with data
-                String value = MultiprocessPreferences.
-                        getDefaultSharedPreferences(getApplicationContext()).getString(name, Constants.DEFAULT_SENSOR_DATA);
-                sensorDataMap.put(name, value);
-                //add new tabHost
-                TabHost.TabSpec spec = tabHost.newTabSpec(name);
-                spec.setContent(new EmptyTabFactory(MainActivity.this));
-                spec.setIndicator(String.valueOf(i + 1));
-                tabHost.addTab(spec);
-            }
-        } else {  //no selection
-            addTabHostEmptyTab();
-        }
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.bCheckData:
-                checkData();
-                break;
-            case R.id.bChooseDestination:
-                chooseDestination();
-                break;
-            case R.id.bSendMessage:
-                if (checkAllParameters()) {
-                    String deviceId = etDeviceId.getText().toString();
-                    String encryption = ((Spinner) findViewById(R.id.spEncryption)).getSelectedItem().toString();
-                    String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
-                    String destinationFormat = etDestination.getText().toString();
-                    if (!CommUtils.createAndSendMessage(deviceId, encryption, sendMode, destinationFormat, sensorDataMap,
-                            getApplicationContext())) {
-                        Toast toast = Toast.makeText(MainActivity.this,
-                                MainActivity.this.getResources().getString(R.string.error), Toast.LENGTH_SHORT);
-                        TextView tv = (TextView) toast.getView().findViewById(android.R.id.message);
-                        tv.setTextColor(Color.RED);
-                        toast.show();
-                    }
-                }
-                break;
-            default:
-                //some error
-                break;
-        }
-    }
-
 
     /**
      * Method for checking if user selected proper values and entered valid destination address.
@@ -392,29 +324,6 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         return true;
     }
 
-    /**
-     * Method for creating dialog which will display some destination addresses.
-     */
-    private void chooseDestination() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String title = getResources().getString(R.string.text_select_destination);
-        builder.setTitle(Html.fromHtml("<font color='#FF7F27'>" + title + "</font>"));
-        ListView modeList = new ListView(this);
-        final String[] addresses = StoringUtils.getDestinationAddresses(getApplicationContext());
-        ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(this, R.layout.custom_checked_text_view,
-                android.R.id.text1, addresses);
-        modeList.setAdapter(modeAdapter);
-        builder.setView(modeList);
-        final Dialog dialog = builder.create();
-        dialog.show();
-        modeList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                etDestination.setText(addresses[position]);
-                dialog.dismiss();
-            }
-        });
-    }
 
     /**
      * Method for checking sensors data changes and if services are running or not.

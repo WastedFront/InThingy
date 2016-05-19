@@ -4,19 +4,15 @@ import android.app.ActivityManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
 
-import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 import com.guna.libmultispinner.MultiSelectionSpinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import zemris.fer.hr.inthingy.communication.CommUtils;
-import zemris.fer.hr.inthingy.communication.CommunicationTask;
 import zemris.fer.hr.inthingy.custom.DataForSpinnerTask;
 
 /**
@@ -103,115 +99,24 @@ public class MyUtils {
 
 
     /**
-     * Method for responding to received message. It parses message and sends response
+     * Method for creating JSON data from sensors map and returning it as string.
      *
-     * @param message
-     *         message in format  SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;MY_ID;DATA
-     * @param context
-     *         context of application or main activity
-     * @return true if everything is ok, otherwise false
+     * @param sensorDataMap
+     *         map contains sensors and their values
+     * @return string representation of JSON data
      */
-    public static boolean respondToMessage(String message, Context context) {
-        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
-        if (splits.length != 7) {
-            return false;
-        }
-        String sendMode = splits[0];
-        String mID = splits[1];
-        String destIP = splits[2];
-        String destPort = splits[3];
-        String destID = splits[4];
-        String myID = splits[5];
-        try {
-            JSONObject jsonObject = new JSONObject(splits[6]);
-            String cmd = jsonObject.getString("CMD");
-            if ("GET".equals(cmd.toUpperCase())) {
-                JSONArray sensorArray = jsonObject.getJSONArray("SENSOR");
-                Map<String, String> sensorDataMap = new HashMap<>();
-                for (int i = 0, len = sensorArray.length(); i < len; ++i) {
-                    String name = sensorArray.getString(i);
-                    String value = MultiprocessPreferences.getDefaultSharedPreferences(context).getString(name, "");
-                    //if there is no such sensor, don't put its data
-                    if (!"".equals(value)) {
-                        sensorDataMap.put(name, value);
-                    }
-                }
-                byte[] msg = CommUtils.createMessage(myID, "NONE", sensorDataMap, destID, mID);
-                if (msg == null) {
-                    return false;
-                }
-                new CommunicationTask(destIP, destPort, msg, context, sendMode, false);
+    public static String createJSONData(Map<String, String> sensorDataMap) {
+        JSONObject jsonData = new JSONObject();
+        for (Map.Entry<String, String> entry : sensorDataMap.entrySet()) {
+            try {
+                String value = entry.getValue();
+                String key = entry.getKey().toUpperCase();
+                JSONObject sensorObject = MyUtils.parseSensorValueToJSON(value);
+                jsonData.put(key, sensorObject);
+            } catch (Exception e) {
+                return null;
             }
-            StoringUtils.removeReceivedMessage(context, message);
-            return true;
-        } catch (Exception e) {
-            return false;
         }
-    }
-
-    /**
-     * Method for getting data from received messages that are stored locally.
-     * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;MY_ID;DATA
-     *
-     * @return message in following format: THING_ID:\n CMD SENSOR1, SENSOR2, ...
-     */
-    public static String getReceivedMessageInfo(String message) {
-        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
-        if (splits.length != 7) {
-            return Constants.STRING_ERROR;
-        }
-        try {
-            JSONObject jsonObject = new JSONObject(splits[6]);
-            String cmd = jsonObject.getString("CMD");
-            StringBuilder values = new StringBuilder(" ");
-            if ("GET".equals(cmd.toUpperCase())) {
-                JSONArray sensorArray = jsonObject.getJSONArray("SENSOR");
-                for (int i = 0, len = sensorArray.length(); i < len - 1; ++i) {
-                    values.append(sensorArray.getString(i)).append('\n');
-                }
-                values.append(sensorArray.getString(sensorArray.length() - 1));
-            }
-            return splits[4] + ":\n" + cmd + values.toString();
-        } catch (Exception e) {
-            return Constants.STRING_ERROR;
-        }
-    }
-
-    /**
-     * Method for formatting received messages that are stored locally in the way they are printable.
-     * Received message is in following format: SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;DATA
-     *
-     * @param message
-     *         message in format  SEND_MODE;PREV_MSG_ID;SRC_IP;SRC_PORT;THING_ID;MY_ID;DATA
-     * @return message in format for print
-     */
-    public static String parseStoredReceivedMessage(String message) {
-        StringBuilder builder = new StringBuilder();
-        String[] splits = message.split(Constants.RECEIVED_MSG_DELIM);
-        if (splits.length != 7) {
-            return Constants.STRING_ERROR;
-        }
-        builder.append("SEND MODE:  ").append(splits[0]).append('\n')
-                .append("THING ID:  ").append(splits[4]).append('\n')
-                .append("SOURCE:  ").append(splits[2]).append(':').append(splits[3]).append("\n\n");
-        try {
-            JSONObject jsonObject = new JSONObject(splits[6]);
-            String cmd = jsonObject.getString("CMD");
-            StringBuilder values = new StringBuilder();
-            if ("GET".equals(cmd.toUpperCase())) {
-                JSONArray sensorArray = jsonObject.getJSONArray("SENSOR");
-                for (int i = 0, len = sensorArray.length(); i < len - 1; ++i) {
-                    values.append(sensorArray.getString(i)).append('\n');
-                }
-                values.append(sensorArray.getString(sensorArray.length() - 1));
-            }
-            builder.append(cmd).append(':').append('\n');
-            if (!"".equals(values.toString())) {
-                builder.append(values.toString());
-            }
-        } catch (JSONException e) {
-            //do nothing
-        }
-        return builder.toString();
+        return jsonData.toString();
     }
 }

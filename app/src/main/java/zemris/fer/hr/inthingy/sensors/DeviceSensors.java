@@ -47,7 +47,7 @@ public class DeviceSensors extends Service implements SensorEventListener {
             String value = getValueForSensor(sensor, values);
             //save default values for sensors
             MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
-                    .edit().putString(sensor.getName(), value).apply();
+                    .edit().putString(sensor.getName().toUpperCase(), value).apply();
         }
     }
 
@@ -65,7 +65,7 @@ public class DeviceSensors extends Service implements SensorEventListener {
         String value = getValueForSensor(event.sensor, event.values);
         //update collection for new sensor data
         MultiprocessPreferences.getDefaultSharedPreferences(getApplicationContext())
-                .edit().putString(event.sensor.getName(), value).apply();
+                .edit().putString(event.sensor.getName().toUpperCase(), value).apply();
     }
 
     /**

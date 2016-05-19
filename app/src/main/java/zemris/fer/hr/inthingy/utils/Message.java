@@ -1,46 +1,45 @@
 package zemris.fer.hr.inthingy.utils;
 
+import java.util.Random;
+
 /**
  * Class which represents message. There are messages that are send to someone and which are received and they both have
  * the same format. Every message has its own id, source thing id, destination thing id and previous message id (if this id is
  * 0, it means there is no previous message). Also message contains sendMode, encryption, destination IP and destination port.
- *
- * @author Nikola Presečki
- * @version 1.0
  */
 public class Message {
     /** Message ID. */
-    private String messageID;
+    protected String messageID;
     /** Previous message ID . */
-    private String previousMessageID;
+    protected String previousMessageID;
     /** Source thing ID. */
-    private String srcID;
+    protected String srcID;
     /** Destination thing ID. */
-    private String destID;
+    protected String destID;
     /** Unparsed JSON data. */
-    private String jsonData;
+    protected String jsonData;
     /** Destination IP. */
-    private String destIP;
+    protected String destIP;
     /** Destination port. */
-    private int destPort;
+    protected int destPort;
     /** Send mode. */
-    private String sendMode;
+    protected String sendMode;
     /** Encryption. */
-    private String encryption;
+    protected String encryption;
+    /** Generator for message ID. */
+    private static final Random random = new Random();
 
     /**
-     * Constructor.
+     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be 00000000.
      *
      * @param messageID
-     *         Message ID as 64 bit number
+     *         message ID
      * @param srcID
-     *         Source thing ID
-     * @param destID
-     *         Destination thing ID
-     * @param jsonDATA
-     *         Unparsed JSON data.
+     *         source thing ID
+     * @param jsonData
+     *         unparsed JSON data.
      * @param previousMessageID
-     *         id of previous message (if exists, otherwise 0)
+     *         id of previous message (if exists, otherwise null)
      * @param sendMode
      *         send mode (INTERNET, BLUETOOTH, WI-FI)
      * @param encryption
@@ -50,14 +49,21 @@ public class Message {
      * @param destPort
      *         port of destination
      */
-    public Message(String messageID, String srcID, String destID, String jsonDATA, String previousMessageID,
+    public Message(String messageID, String srcID, String destID, String jsonData, String previousMessageID,
                    String sendMode, String encryption, String destIP, int destPort) {
-        super();
-        this.messageID = messageID;
+        if (messageID != null) {
+            this.messageID = messageID;
+        } else {
+            this.messageID = String.format("%08d", random.nextInt(79999999) + 1);
+        }
         this.srcID = srcID;
         this.destID = destID;
-        this.jsonData = jsonDATA;
-        this.previousMessageID = previousMessageID;
+        this.jsonData = jsonData;
+        if (previousMessageID != null) {
+            this.previousMessageID = previousMessageID;
+        } else {
+            this.previousMessageID = "00000000";
+        }
         this.sendMode = sendMode;
         this.encryption = encryption;
         this.destIP = destIP;
@@ -65,21 +71,62 @@ public class Message {
     }
 
     /**
-     * Method for parsing received message. Message is in following format: -
-     * MSG_ID SRC_ID DEST_ID PREV_MSG_ID JSON_DATA - Every ID is 64 bit long.
+     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be 00000000.
      *
-     * @param message
-     *         properly formatted message.
-     * @return newly created message.
+     * @param messageID
+     *         message ID
+     * @param srcID
+     *         source thing ID
+     * @param jsonData
+     *         unparsed JSON data.
+     * @param previousMessageID
+     *         id of previous message (if exists, otherwise null)
+     * @param sendMode
+     *         send mode (INTERNET, BLUETOOTH, WI-FI)
+     * @param encryption
+     *         encryption NONE, HMAC, FULL
+     * @param destinationFormat
+     *         format of destination IP, port and ID. It needs to be in following format:--destIP:destPort destID--
      */
-    public static Message parseReturnMessage(String message) {
-//        String msgID = message.substring(0, 8);
-//        String srcID = message.substring(8, 16);
-//        String destID = message.substring(16, 24);
-//        String pMsgID = message.substring(24, 32);
-//        String jsonData = message.substring(32);
-//        return new Message(msgID, srcID, destID, jsonData, pMsgID);
-        return null;
+    public Message(String messageID, String srcID, String jsonData, String previousMessageID,
+                   String sendMode, String encryption, String destinationFormat) {
+        this(messageID, srcID, destinationFormat.split(" ")[1], jsonData, previousMessageID, sendMode, encryption,
+                destinationFormat.split(" ")[0].split(":")[0],
+                Integer.parseInt(destinationFormat.split(" ")[0].split(":")[1]));
+    }
+
+
+    /**
+     * Method for getting message in format which will be used to send to some other device.
+     * That message is in following format:
+     * --encryptionType messageID srcID destID preMsgID jsonDATA--
+     *
+     * @return message string in proper format
+     */
+    public String getComSendMessage() {
+        String sendMsg = encryptMessage();
+        char encryptType = '0';
+        switch (encryption.toUpperCase()) {
+            case "FULL":
+                encryptType = '1';
+                break;
+        }
+        return encryptType + sendMsg;
+    }
+
+    /**
+     * Method for encrypting message.
+     * Encryption types are NONE, FULL, HMAC.
+     *
+     * @return encrypted message
+     */
+    private String encryptMessage() {
+        switch (encryption.toUpperCase()) {
+            case "NONE":
+                return messageID + srcID + destID + previousMessageID + jsonData;
+            default:
+                return messageID + srcID + destID + previousMessageID + jsonData;
+        }
     }
 
     /**
@@ -161,5 +208,58 @@ public class Message {
      */
     public String getSendMode() {
         return sendMode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Message message = (Message) o;
+
+        if (destPort != message.destPort) {
+            return false;
+        }
+        if (!messageID.equals(message.messageID)) {
+            return false;
+        }
+        if (previousMessageID != null ? !previousMessageID.equals(message.previousMessageID) : message.previousMessageID != null) {
+            return false;
+        }
+        if (!srcID.equals(message.srcID)) {
+            return false;
+        }
+        if (!destID.equals(message.destID)) {
+            return false;
+        }
+        if (!jsonData.equals(message.jsonData)) {
+            return false;
+        }
+        if (!destIP.equals(message.destIP)) {
+            return false;
+        }
+        if (!sendMode.equals(message.sendMode)) {
+            return false;
+        }
+        return encryption.equals(message.encryption);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = messageID.hashCode();
+        result = 31 * result + (previousMessageID != null ? previousMessageID.hashCode() : 0);
+        result = 31 * result + srcID.hashCode();
+        result = 31 * result + destID.hashCode();
+        result = 31 * result + jsonData.hashCode();
+        result = 31 * result + destIP.hashCode();
+        result = 31 * result + destPort;
+        result = 31 * result + sendMode.hashCode();
+        result = 31 * result + encryption.hashCode();
+        return result;
     }
 }
