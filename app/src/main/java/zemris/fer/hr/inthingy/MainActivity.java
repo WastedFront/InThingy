@@ -133,10 +133,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         tvSensorData.setText(R.string.text_sensor_data_default);
         if (strings != null && strings.size() > 0) {
             for (int i = 0; i < strings.size(); ++i) {
-                String name = strings.get(i);
+                String name = strings.get(i).toUpperCase();
                 //populate map with data
-                String value = MultiprocessPreferences.
-                        getDefaultSharedPreferences(getApplicationContext()).getString(name, Constants.DEFAULT_SENSOR_DATA);
+                String value = MultiprocessPreferences.getDefaultSharedPreferences(
+                        getApplicationContext()).getString(name, Constants.DEFAULT_SENSOR_DATA);
                 sensorDataMap.put(name, value);
                 //add new tabHost
                 TabHost.TabSpec spec = tabHost.newTabSpec(name);
@@ -329,8 +329,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      * Method for checking sensors data changes and if services are running or not.
      */
     private void checkData() {
-        if (!MyUtils.isServiceRunning(GPSLocator.class, MainActivity.this)) {
-            startService(gpsService);
+        if(spDeviceSensors.getSelectedStrings().contains(Constants.GPS_SENSOR_NAME)) {
+            if (!MyUtils.isServiceRunning(GPSLocator.class, MainActivity.this)) {
+                startService(gpsService);
+            }
         }
         if (!MyUtils.isServiceRunning(DeviceSensors.class, MainActivity.this)) {
             startService(sensorService);
@@ -343,8 +345,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      */
     private void updateTabHostWithData() {
         for (String name : spDeviceSensors.getSelectedStrings()) {
-            String value = MultiprocessPreferences.
-                    getDefaultSharedPreferences(getApplicationContext()).getString(name, Constants.DEFAULT_SENSOR_DATA);
+            String value = MultiprocessPreferences.getDefaultSharedPreferences(
+                    getApplicationContext()).getString(name.toUpperCase(), Constants.DEFAULT_SENSOR_DATA);
             sensorDataMap.put(name, value);
         }
         if (spDeviceSensors.getSelectedStrings().size() > 0) {
