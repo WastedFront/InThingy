@@ -65,6 +65,7 @@ public class GPSLocator extends Service {
         if (locationPerm1 && locationPerm2) {
             Toast.makeText(getApplicationContext(), R.string.error_no_location_perms,
                     Toast.LENGTH_LONG).show();
+            stopSelf();
         }
         //check which connectivity you can use to get data
         if (isNetworkEnabled) {
@@ -79,8 +80,6 @@ public class GPSLocator extends Service {
 
         //if you can't get data, stop service
         if ((!isGPSEnabled || locationPerm1 || locationPerm2) && !isNetworkEnabled) {
-            Toast.makeText(getApplicationContext(), R.string.error_cant_get_location,
-                    Toast.LENGTH_LONG).show();
             Toast.makeText(getApplicationContext(), R.string.error_cant_get_location,
                     Toast.LENGTH_LONG).show();
             stopSelf();

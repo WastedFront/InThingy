@@ -42,7 +42,7 @@
     <string name="longitude">Longitude</string>
     <string name="altitude">Altitude</string>
     <string name="error_no_location_perms">Application don\'t have permission to access location If you want to get GPS data, please enable permission in Settings</string>
-    <string name="error_cant_get_location">GPS data can\'t be accessed. Please turn GPS or Network ON.\nIf Network is ON please check flag in Settings-Security to use Network for location.</string>
+    <string name="error_cant_get_location">GPS data can\'t be accessed. Please turn GPS or Network ON.\nIf Network is ON please check flag in Settings to use Network for location.</string>
     <string name="text_menu_show_messages">MESSAGES</string>
     <string name="text_recevied_messages">Received messages</string>
     <string name="text_message_replied">Message replied!</string>
