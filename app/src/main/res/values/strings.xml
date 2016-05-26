@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">InThingy</string>
+    <string name="app_name">IoThingy</string>
     <string name="text_device_id">Device ID:</string>
     <string name="text_select_sensors">Select sensors:</string>
     <string name="text_button_check_data">DATA</string>
