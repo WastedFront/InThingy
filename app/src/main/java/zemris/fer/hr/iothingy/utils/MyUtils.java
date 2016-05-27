@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.utils;
+package zemris.fer.hr.iothingy.utils;
 
 import android.app.ActivityManager;
 import android.content.Context;
@@ -13,7 +13,7 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Map;
 
-import zemris.fer.hr.inthingy.custom.DataForSpinnerTask;
+import zemris.fer.hr.iothingy.custom.DataForSpinnerTask;
 
 /**
  * Utility class which contains some methods that are used by multiple activities/services.

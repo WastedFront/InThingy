@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.utils;
+package zemris.fer.hr.iothingy.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import zemris.fer.hr.inthingy.R;
+import zemris.fer.hr.iothingy.R;
 
 /**
  * Class provides methods for storing values which need to be persistent.
@@ -185,7 +185,7 @@ public class StoringUtils {
      *         address in proper format
      */
     public static boolean addDestinationAddress(Context context, String address) {
-        if (!Pattern.compile(Constants.REGEX_DESTINATION_FORMAT).matcher(address).matches()) {
+        if (!Pattern.compile(Constants.REGEX_INTERNET_DESTINATION_FORMAT).matcher(address).matches()) {
             return false;
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);

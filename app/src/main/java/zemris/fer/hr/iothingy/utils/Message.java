@@ -1,5 +1,6 @@
-package zemris.fer.hr.inthingy.utils;
+package zemris.fer.hr.iothingy.utils;
 
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -54,7 +55,7 @@ public class Message {
         if (messageID != null) {
             this.messageID = messageID;
         } else {
-            this.messageID = String.format("%08d", random.nextInt(79999999) + 1);
+            this.messageID = String.format(Locale.getDefault(), "%08d", random.nextInt(79999999) + 1);
         }
         this.srcID = srcID;
         this.destID = destID;

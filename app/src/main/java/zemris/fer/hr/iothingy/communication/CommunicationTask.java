@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.communication;
+package zemris.fer.hr.iothingy.communication;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -11,13 +11,13 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import zemris.fer.hr.inthingy.R;
-import zemris.fer.hr.inthingy.utils.Constants;
-import zemris.fer.hr.inthingy.utils.Message;
-import zemris.fer.hr.inthingy.utils.MyDialogs;
-import zemris.fer.hr.inthingy.utils.MyUtils;
-import zemris.fer.hr.inthingy.utils.ReceivedServerMessage;
-import zemris.fer.hr.inthingy.utils.StoringUtils;
+import zemris.fer.hr.iothingy.R;
+import zemris.fer.hr.iothingy.utils.Constants;
+import zemris.fer.hr.iothingy.utils.Message;
+import zemris.fer.hr.iothingy.utils.MyDialogs;
+import zemris.fer.hr.iothingy.utils.MyUtils;
+import zemris.fer.hr.iothingy.utils.ReceivedServerMessage;
+import zemris.fer.hr.iothingy.utils.StoringUtils;
 
 /**
  * Class for handling communication with some destination device. It handles all types of connections (Internet, Wi-Fi, Bluetooth).

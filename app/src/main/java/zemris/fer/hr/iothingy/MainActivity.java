@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy;
+package zemris.fer.hr.iothingy;
 
 import android.content.Context;
 import android.content.Intent;
@@ -24,16 +24,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import zemris.fer.hr.inthingy.communication.CommunicationTask;
-import zemris.fer.hr.inthingy.communication.MessageReplyService;
-import zemris.fer.hr.inthingy.gps.GPSLocator;
-import zemris.fer.hr.inthingy.sensors.DeviceSensors;
-import zemris.fer.hr.inthingy.utils.Constants;
-import zemris.fer.hr.inthingy.utils.EmptyTabFactory;
-import zemris.fer.hr.inthingy.utils.Message;
-import zemris.fer.hr.inthingy.utils.MyDialogs;
-import zemris.fer.hr.inthingy.utils.MyUtils;
-import zemris.fer.hr.inthingy.utils.StoringUtils;
+import zemris.fer.hr.iothingy.communication.CommunicationTask;
+import zemris.fer.hr.iothingy.communication.MessageReplyService;
+import zemris.fer.hr.iothingy.gps.GPSLocator;
+import zemris.fer.hr.iothingy.sensors.DeviceSensors;
+import zemris.fer.hr.iothingy.utils.Constants;
+import zemris.fer.hr.iothingy.utils.EmptyTabFactory;
+import zemris.fer.hr.iothingy.utils.Message;
+import zemris.fer.hr.iothingy.utils.MyDialogs;
+import zemris.fer.hr.iothingy.utils.MyUtils;
+import zemris.fer.hr.iothingy.utils.StoringUtils;
 
 /**
  * Activity for displaying main screen. It provides user options to send new message or to see received messages.
@@ -317,7 +317,9 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             Toast.makeText(MainActivity.this, R.string.error_no_destination, Toast.LENGTH_SHORT).show();
             return false;
         }
-        if (!Pattern.compile(Constants.REGEX_DESTINATION_FORMAT).matcher(destination).matches()) {
+        String sendMode = ((Spinner) findViewById(R.id.spSendMode)).getSelectedItem().toString();
+        if (!Pattern.compile(Constants.REGEX_INTERNET_DESTINATION_FORMAT).matcher(destination).matches()
+                && sendMode.toUpperCase().equals("INTERNET")) {
             Toast.makeText(MainActivity.this, R.string.error_invalid_adress_fromat, Toast.LENGTH_SHORT).show();
             return false;
         }

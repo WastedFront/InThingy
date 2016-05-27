@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy;
+package zemris.fer.hr.iothingy;
 
 import org.junit.Test;
 

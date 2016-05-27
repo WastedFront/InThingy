@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.gps;
+package zemris.fer.hr.iothingy.gps;
 
 import android.Manifest;
 import android.app.Service;
@@ -15,8 +15,8 @@ import android.widget.Toast;
 
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 
-import zemris.fer.hr.inthingy.R;
-import zemris.fer.hr.inthingy.utils.Constants;
+import zemris.fer.hr.iothingy.R;
+import zemris.fer.hr.iothingy.utils.Constants;
 
 /**
  * Class for finding GPS location data. It uses GPS service or Network service, depending on which one is available and

@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.utils;
+package zemris.fer.hr.iothingy.utils;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -16,8 +16,8 @@ import android.widget.Toast;
 
 import java.util.List;
 
-import zemris.fer.hr.inthingy.R;
-import zemris.fer.hr.inthingy.communication.CommunicationTask;
+import zemris.fer.hr.iothingy.R;
+import zemris.fer.hr.iothingy.communication.CommunicationTask;
 
 /**
  * Class provides methods which show different dialogs to user and interact with him.

@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.communication;
+package zemris.fer.hr.iothingy.communication;
 
 import android.app.Service;
 import android.content.Intent;
@@ -7,8 +7,8 @@ import android.support.annotation.Nullable;
 
 import java.util.List;
 
-import zemris.fer.hr.inthingy.utils.ReceivedServerMessage;
-import zemris.fer.hr.inthingy.utils.StoringUtils;
+import zemris.fer.hr.iothingy.utils.ReceivedServerMessage;
+import zemris.fer.hr.iothingy.utils.StoringUtils;
 
 /**
  * Service for automatic reply for messages that are received. When application communicates with some server, it can

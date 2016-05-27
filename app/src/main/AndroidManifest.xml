@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="zemris.fer.hr.inthingy"
+    package="zemris.fer.hr.iothingy"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -15,7 +15,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="zemris.fer.hr.iothingy.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -23,15 +23,15 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".gps.GPSLocator"
+            android:name="zemris.fer.hr.iothingy.gps.GPSLocator"
             android:exported="false"
             android:process=":gps_locator"/>
         <service
-            android:name=".sensors.DeviceSensors"
+            android:name="zemris.fer.hr.iothingy.sensors.DeviceSensors"
             android:exported="false"
             android:process=":sensor_reader"/>
         <service
-            android:name=".communication.MessageReplyService"
+            android:name="zemris.fer.hr.iothingy.communication.MessageReplyService"
             android:exported="false"
             android:process=":message_reply_service"/>
         <provider

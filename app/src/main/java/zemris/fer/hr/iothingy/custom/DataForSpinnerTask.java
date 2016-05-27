@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.custom;
+package zemris.fer.hr.iothingy.custom;
 
 import android.app.Service;
 import android.content.Context;
@@ -12,9 +12,9 @@ import com.guna.libmultispinner.MultiSelectionSpinner;
 import java.util.ArrayList;
 import java.util.List;
 
-import zemris.fer.hr.inthingy.R;
-import zemris.fer.hr.inthingy.utils.Constants;
-import zemris.fer.hr.inthingy.utils.StoringUtils;
+import zemris.fer.hr.iothingy.R;
+import zemris.fer.hr.iothingy.utils.Constants;
+import zemris.fer.hr.iothingy.utils.StoringUtils;
 
 /**
  * Task for getting all sensors that device has and populate appropriate spinner with their names.

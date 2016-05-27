@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.utils;
+package zemris.fer.hr.iothingy.utils;
 
 import android.content.Context;
 
@@ -8,6 +8,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -75,7 +76,7 @@ public class ReceivedServerMessage extends Message {
         }
         String jsonResponse = handleGetCommand(context);
         return new Message(
-                String.format("%08d", Integer.parseInt(getMessageID()) + 1),
+                String.format(Locale.getDefault(), "%08d", Integer.parseInt(getMessageID()) + 1),
                 getDestID(),
                 getSrcID(),
                 jsonResponse,

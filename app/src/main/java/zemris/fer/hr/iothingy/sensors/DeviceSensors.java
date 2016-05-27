@@ -1,4 +1,4 @@
-package zemris.fer.hr.inthingy.sensors;
+package zemris.fer.hr.iothingy.sensors;
 
 import android.app.Service;
 import android.content.Context;
@@ -12,7 +12,7 @@ import android.support.annotation.Nullable;
 
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 
-import zemris.fer.hr.inthingy.R;
+import zemris.fer.hr.iothingy.R;
 
 /**
  * Service for handling sensors and their data.

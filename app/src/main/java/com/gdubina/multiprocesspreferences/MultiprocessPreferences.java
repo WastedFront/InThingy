@@ -15,7 +15,7 @@ import android.preference.PreferenceManager;
 
 import java.util.Map.Entry;
 
-import zemris.fer.hr.inthingy.R;
+import zemris.fer.hr.iothingy.R;
 
 /**
  * All credits goes to: <a href = "https://github.com/hamsterksu">hamsterksu</a>.
@@ -101,11 +101,7 @@ public class MultiprocessPreferences extends ContentProvider {
                         throw new IllegalArgumentException("Unsupported type " + uri);
                     }
                 }
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO) {
-                    editor.apply();
-                } else {
-                    editor.commit();
-                }
+                editor.apply();
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported uri " + uri);
@@ -317,7 +313,7 @@ public class MultiprocessPreferences extends ContentProvider {
 
     }
 
-    private static final Uri getContentUri(Context context, String key, String type) {
+    private static Uri getContentUri(Context context, String key, String type) {
         if (BASE_URI == null) {
             init(context);
         }
