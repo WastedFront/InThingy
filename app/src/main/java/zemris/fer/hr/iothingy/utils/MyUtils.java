@@ -3,17 +3,14 @@ package zemris.fer.hr.iothingy.utils;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.net.ConnectivityManager;
-
 import com.guna.libmultispinner.MultiSelectionSpinner;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import zemris.fer.hr.iothingy.custom.DataForSpinnerTask;
 
 import java.util.List;
 import java.util.Map;
-
-import zemris.fer.hr.iothingy.custom.DataForSpinnerTask;
 
 /**
  * Utility class which contains some methods that are used by multiple activities/services.
@@ -27,8 +24,10 @@ public class MyUtils {
      * @return true if device is connected to the Internet, otherwise false.
      */
     public static boolean isNetworkAvailable(final Context context) {
-        ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
-        return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
+        ConnectivityManager connectivityManager =
+                ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+        return connectivityManager.getActiveNetworkInfo() != null &&
+                connectivityManager.getActiveNetworkInfo().isConnected();
     }
 
     /**
@@ -68,10 +67,7 @@ public class MyUtils {
     }
 
     /**
-     * Method for parsing sensor values into JSON format.
-     * Example of input:
-     * Proximity: 1.0 cm
-     * Example of output:
+     * Method for parsing sensor values into JSON format. Example of input: Proximity: 1.0 cm Example of output:
      * "GPS":{"VALUES":[65.966,-18.533,15.044],"NAMES":["LATITUDE","LONGITUDE","ALTITUDE"]};
      *
      * @param value

@@ -10,36 +10,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.Spinner;
-import android.widget.TabHost;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
 import com.guna.libmultispinner.MultiSelectionSpinner;
+import zemris.fer.hr.iothingy.communication.CommunicationTask;
+import zemris.fer.hr.iothingy.communication.MessageReplyService;
+import zemris.fer.hr.iothingy.gps.GPSLocator;
+import zemris.fer.hr.iothingy.sensors.DeviceSensors;
+import zemris.fer.hr.iothingy.utils.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import zemris.fer.hr.iothingy.communication.CommunicationTask;
-import zemris.fer.hr.iothingy.communication.MessageReplyService;
-import zemris.fer.hr.iothingy.gps.GPSLocator;
-import zemris.fer.hr.iothingy.sensors.DeviceSensors;
-import zemris.fer.hr.iothingy.utils.Constants;
-import zemris.fer.hr.iothingy.utils.EmptyTabFactory;
-import zemris.fer.hr.iothingy.utils.Message;
-import zemris.fer.hr.iothingy.utils.MyDialogs;
-import zemris.fer.hr.iothingy.utils.MyUtils;
-import zemris.fer.hr.iothingy.utils.StoringUtils;
-
 /**
- * Activity for displaying main screen. It provides user options to send new message or to see received messages.
- * When application is loaded, it needs to populate {@link com.guna.libmultispinner.MultiSelectionSpinner} with
- * available sensors on device.
- * Also it provides to start service for automatic reply to received messages.
+ * Activity for displaying main screen. It provides user options to send new message or to see received messages. When
+ * application is loaded, it needs to populate {@link com.guna.libmultispinner.MultiSelectionSpinner} with available
+ * sensors on device. Also it provides to start service for automatic reply to received messages.
  */
 public class MainActivity extends AppCompatActivity implements MultiSelectionSpinner.OnMultipleItemsSelectedListener,
         View.OnClickListener {
@@ -88,7 +76,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         tvSensorData = (TextView) findViewById(R.id.tvSensorData);
         etDestination = (EditText) findViewById(R.id.etDestination);
         etDeviceId = (EditText) findViewById(R.id.etThingID);
-        String defaultID = Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+        String defaultID =
+                Settings.Secure.getString(getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
         defaultID = defaultID.substring(0, 8);
         etDeviceId.setText(getPreferences(Context.MODE_PRIVATE).getString(Constants.KEY_DEVICE_ID, defaultID));
         int[] buttonIds = new int[]{R.id.bCheckData, R.id.bChooseDestination, R.id.bSendMessage};
@@ -108,7 +97,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
             @Override
             public void onTabChanged(String tabId) {
                 if (!Constants.EMPTY_TAB_TAG.equals(tabId)) {
-                    String text = MainActivity.this.getString(R.string.name_sensor) + ": " + tabId + "\n" + sensorDataMap.get(tabId);
+                    String text = MainActivity.this.getString(R.string.name_sensor) + ": " + tabId + "\n" +
+                            sensorDataMap.get(tabId);
                     tvSensorData.setText(text);
                 }
             }
@@ -217,8 +207,10 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         outState.putStringArray(Constants.KEY_SEL_SENSORS,
                 spDeviceSensors.getSelectedStrings().toArray(new String[spDeviceSensors.getSelectedStrings().size()]));
         outState.putBoolean(Constants.KEY_AUTO_REPLY_ON, flagAutoReply);
-        outState.putString(Constants.KEY_DESTINATION, ((EditText) findViewById(R.id.etDestination)).getText().toString());
-        outState.putInt(Constants.KEY_ENCRYPTION, ((Spinner) findViewById(R.id.spEncryption)).getSelectedItemPosition());
+        outState.putString(Constants.KEY_DESTINATION,
+                ((EditText) findViewById(R.id.etDestination)).getText().toString());
+        outState.putInt(Constants.KEY_ENCRYPTION,
+                ((Spinner) findViewById(R.id.spEncryption)).getSelectedItemPosition());
         outState.putInt(Constants.KEY_SEND_MODE, ((Spinner) findViewById(R.id.spSendMode)).getSelectedItemPosition());
     }
 
@@ -331,7 +323,7 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
      * Method for checking sensors data changes and if services are running or not.
      */
     private void checkData() {
-        if(spDeviceSensors.getSelectedStrings().contains(Constants.GPS_SENSOR_NAME)) {
+        if (spDeviceSensors.getSelectedStrings().contains(Constants.GPS_SENSOR_NAME)) {
             if (!MyUtils.isServiceRunning(GPSLocator.class, MainActivity.this)) {
                 startService(gpsService);
             }
@@ -353,7 +345,8 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         }
         if (spDeviceSensors.getSelectedStrings().size() > 0) {
             String tabName = tabHost.getCurrentTabTag();
-            String text = MainActivity.this.getString(R.string.name_sensor) + ": " + tabName + "\n" + sensorDataMap.get(tabName);
+            String text = MainActivity.this.getString(R.string.name_sensor) + ": " + tabName + "\n" +
+                    sensorDataMap.get(tabName);
             tvSensorData.setText(text);
         }
     }

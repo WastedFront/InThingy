@@ -12,18 +12,16 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.v4.app.ActivityCompat;
 import android.widget.Toast;
-
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
-
 import zemris.fer.hr.iothingy.R;
 import zemris.fer.hr.iothingy.utils.Constants;
 
 /**
  * Class for finding GPS location data. It uses GPS service or Network service, depending on which one is available and
  * more accurate. It handles permissions which application needs to have to access those data in a way that it shows
- * user what the problem is, but it doesn't prompt for permissions.
- * If both, GPS and Network, are not enabled, user will have to enable them if he wants to get this data.
- * Data is stored in {@link com.gdubina.multiprocesspreferences.MultiprocessPreferences.MultiprocessSharedPreferences}.
+ * user what the problem is, but it doesn't prompt for permissions. If both, GPS and Network, are not enabled, user will
+ * have to enable them if he wants to get this data. Data is stored in
+ * {@link com.gdubina.multiprocesspreferences.MultiprocessPreferences.MultiprocessSharedPreferences}.
  */
 public class GPSLocator extends Service {
     /** Manager for location */
@@ -87,8 +85,8 @@ public class GPSLocator extends Service {
     }
 
     /**
-     * Method for initializing location manager and checking if there is gps or network online.
-     * It is also used to store default sensor value into {@code MultiprocessSharedPreferences}.
+     * Method for initializing location manager and checking if there is gps or network online. It is also used to store
+     * default sensor value into {@code MultiprocessSharedPreferences}.
      */
     private void initialization() {
         if (locationManager == null) {
@@ -127,8 +125,8 @@ public class GPSLocator extends Service {
 
 
     /**
-     * Class which will provide location, it implements {@link android.location.LocationListener}.
-     * When the location is changed, it's new value is stored in {@link MultiprocessPreferences}.
+     * Class which will provide location, it implements {@link android.location.LocationListener}. When the location is
+     * changed, it's new value is stored in {@link MultiprocessPreferences}.
      */
     private class MyLocationListener implements LocationListener {
 

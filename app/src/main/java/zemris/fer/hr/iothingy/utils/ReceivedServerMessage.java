@@ -1,9 +1,7 @@
 package zemris.fer.hr.iothingy.utils;
 
 import android.content.Context;
-
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,8 +20,8 @@ public class ReceivedServerMessage extends Message {
     private String cmdValue;
 
     /**
-     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be 00000000.
-     * It automatically parses jsonData as CMD and CMD_VALUE.
+     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be
+     * 00000000. It automatically parses jsonData as CMD and CMD_VALUE.
      *
      * @param messageID
      *         message ID
@@ -42,9 +40,11 @@ public class ReceivedServerMessage extends Message {
      * @param destPort
      *         port of destination
      */
-    public ReceivedServerMessage(String messageID, String srcID, String destID, String jsonData, String previousMessageID,
+    public ReceivedServerMessage(String messageID, String srcID, String destID, String jsonData, String
+            previousMessageID,
                                  String sendMode, String encryption, String destIP, int destPort) {
-        super(messageID, srcID, destID, jsonData.toUpperCase(), previousMessageID, sendMode, encryption, destIP, destPort);
+        super(messageID, srcID, destID, jsonData.toUpperCase(), previousMessageID, sendMode, encryption, destIP,
+                destPort);
         try {
             JSONObject jsonObject = new JSONObject(jsonData.toUpperCase());
             cmd = jsonObject.getString("CMD");
@@ -123,9 +123,9 @@ public class ReceivedServerMessage extends Message {
     }
 
     /**
-     * Method for getting string format of this object which can be saved to some file or something else.
-     * Every variable is separated with delimiter saved in {@link Constants}.
-     * Variables are in following order: msgID, srcID, destID, prevMsgID, jsonData, send mode, encryption, destIP, destPort.
+     * Method for getting string format of this object which can be saved to some file or something else. Every variable
+     * is separated with delimiter saved in {@link Constants}. Variables are in following order: msgID, srcID, destID,
+     * prevMsgID, jsonData, send mode, encryption, destIP, destPort.
      *
      * @return string format of message
      */
@@ -136,8 +136,8 @@ public class ReceivedServerMessage extends Message {
     }
 
     /**
-     * Method for parsing string representation of this object. Given string must be in valid format.
-     * Variables are in following order: msgID, srcID, destID, prevMsgID, jsonData, send mode, encryption, destIP, destPort.
+     * Method for parsing string representation of this object. Given string must be in valid format. Variables are in
+     * following order: msgID, srcID, destID, prevMsgID, jsonData, send mode, encryption, destIP, destPort.
      *
      * @param storeMsg
      *         string representation of message
@@ -148,7 +148,8 @@ public class ReceivedServerMessage extends Message {
         if (splits.length != 9) {
             throw new IllegalArgumentException("Illegal message format");
         }
-        return new ReceivedServerMessage(splits[0], splits[1], splits[2], splits[4], splits[3], splits[5], splits[6], splits[7],
+        return new ReceivedServerMessage(splits[0], splits[1], splits[2], splits[4], splits[3], splits[5], splits[6],
+                splits[7],
                 Integer.parseInt(splits[8]));
     }
 

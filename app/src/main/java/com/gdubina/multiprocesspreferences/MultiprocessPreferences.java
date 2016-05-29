@@ -1,25 +1,18 @@
 package com.gdubina.multiprocesspreferences;
 
 import android.annotation.SuppressLint;
-import android.content.ContentProvider;
-import android.content.ContentResolver;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.content.UriMatcher;
+import android.content.*;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
-import android.os.Build;
 import android.preference.PreferenceManager;
+import zemris.fer.hr.iothingy.R;
 
 import java.util.Map.Entry;
 
-import zemris.fer.hr.iothingy.R;
-
 /**
- * All credits goes to: <a href = "https://github.com/hamsterksu">hamsterksu</a>.
- * Source code: <a href="https://github.com/hamsterksu/MultiprocessPreferences">here</a>
+ * All credits goes to: <a href = "https://github.com/hamsterksu">hamsterksu</a>. Source code: <a
+ * href="https://github.com/hamsterksu/MultiprocessPreferences">here</a>
  */
 public class MultiprocessPreferences extends ContentProvider {
 
@@ -81,7 +74,8 @@ public class MultiprocessPreferences extends ContentProvider {
     public Uri insert(Uri uri, ContentValues values) {
         switch (matcher.match(uri)) {
             case MATCH_DATA:
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext()).edit();
+                SharedPreferences.Editor editor =
+                        PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext()).edit();
                 for (Entry<String, Object> entry : values.valueSet()) {
                     final Object value = entry.getValue();
                     final String key = entry.getKey();
@@ -118,7 +112,8 @@ public class MultiprocessPreferences extends ContentProvider {
                 final String key = uri.getPathSegments().get(0);
                 final String type = uri.getPathSegments().get(1);
                 cursor = new MatrixCursor(new String[]{key});
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
+                SharedPreferences sharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(getContext().getApplicationContext());
                 if (!sharedPreferences.contains(key)) {
                     return cursor;
                 }
@@ -266,8 +261,7 @@ public class MultiprocessPreferences extends ContentProvider {
         }
 
         /**
-         * Call content provider method immediately. apply or commit is not required for this case
-         * So it's sync method.
+         * Call content provider method immediately. apply or commit is not required for this case So it's sync method.
          */
         public void clear() {
             context.getContentResolver().delete(getContentUri(context, KEY, TYPE), null, null);
@@ -287,27 +281,34 @@ public class MultiprocessPreferences extends ContentProvider {
         }
 
         public String getString(String key, String def) {
-            Cursor cursor = context.getContentResolver().query(getContentUri(context, key, STRING_TYPE), null, null, null, null);
+            Cursor cursor =
+                    context.getContentResolver().query(getContentUri(context, key, STRING_TYPE), null, null, null,
+                            null);
             return getStringValue(cursor, def);
         }
 
         public long getLong(String key, long def) {
-            Cursor cursor = context.getContentResolver().query(getContentUri(context, key, LONG_TYPE), null, null, null, null);
+            Cursor cursor =
+                    context.getContentResolver().query(getContentUri(context, key, LONG_TYPE), null, null, null, null);
             return getLongValue(cursor, def);
         }
 
         public float getFloat(String key, float def) {
-            Cursor cursor = context.getContentResolver().query(getContentUri(context, key, FLOAT_TYPE), null, null, null, null);
+            Cursor cursor =
+                    context.getContentResolver().query(getContentUri(context, key, FLOAT_TYPE), null, null, null, null);
             return getFloatValue(cursor, def);
         }
 
         public boolean getBoolean(String key, boolean def) {
-            Cursor cursor = context.getContentResolver().query(getContentUri(context, key, BOOLEAN_TYPE), null, null, null, null);
+            Cursor cursor =
+                    context.getContentResolver().query(getContentUri(context, key, BOOLEAN_TYPE), null, null, null,
+                            null);
             return getBooleanValue(cursor, def);
         }
 
         public int getInt(String key, int def) {
-            Cursor cursor = context.getContentResolver().query(getContentUri(context, key, INT_TYPE), null, null, null, null);
+            Cursor cursor =
+                    context.getContentResolver().query(getContentUri(context, key, INT_TYPE), null, null, null, null);
             return getIntValue(cursor, def);
         }
 

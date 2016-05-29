@@ -5,8 +5,9 @@ import java.util.Random;
 
 /**
  * Class which represents message. There are messages that are send to someone and which are received and they both have
- * the same format. Every message has its own id, source thing id, destination thing id and previous message id (if this id is
- * 0, it means there is no previous message). Also message contains sendMode, encryption, destination IP and destination port.
+ * the same format. Every message has its own id, source thing id, destination thing id and previous message id (if this
+ * id is 0, it means there is no previous message). Also message contains sendMode, encryption, destination IP and
+ * destination port.
  */
 public class Message {
     /** Message ID. */
@@ -31,7 +32,8 @@ public class Message {
     private static final Random random = new Random();
 
     /**
-     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be 00000000.
+     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be
+     * 00000000.
      *
      * @param messageID
      *         message ID
@@ -72,7 +74,8 @@ public class Message {
     }
 
     /**
-     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be 00000000.
+     * Constructor. If message ID is null, it will be randomly created, if previous message id is null, it will be
+     * 00000000.
      *
      * @param messageID
      *         message ID
@@ -98,9 +101,8 @@ public class Message {
 
 
     /**
-     * Method for getting message in format which will be used to send to some other device.
-     * That message is in following format:
-     * --encryptionType messageID srcID destID preMsgID jsonDATA--
+     * Method for getting message in format which will be used to send to some other device. That message is in
+     * following format: --encryptionType messageID srcID destID preMsgID jsonDATA--
      *
      * @return message string in proper format
      */
@@ -116,8 +118,7 @@ public class Message {
     }
 
     /**
-     * Method for encrypting message.
-     * Encryption types are NONE, FULL, HMAC.
+     * Method for encrypting message. Encryption types are NONE, FULL, HMAC.
      *
      * @return encrypted message
      */
@@ -228,7 +229,8 @@ public class Message {
         if (!messageID.equals(message.messageID)) {
             return false;
         }
-        if (previousMessageID != null ? !previousMessageID.equals(message.previousMessageID) : message.previousMessageID != null) {
+        if (previousMessageID != null ? !previousMessageID.equals(message.previousMessageID) :
+                message.previousMessageID != null) {
             return false;
         }
         if (!srcID.equals(message.srcID)) {

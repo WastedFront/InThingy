@@ -3,14 +3,12 @@ package zemris.fer.hr.iothingy.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
 import org.json.JSONArray;
+import zemris.fer.hr.iothingy.R;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-
-import zemris.fer.hr.iothingy.R;
 
 /**
  * Class provides methods for storing values which need to be persistent.
@@ -18,8 +16,8 @@ import zemris.fer.hr.iothingy.R;
 public class StoringUtils {
 
     /**
-     * Method for storing array in {@code SharedPreferences} in JSON format and getting the same thing out depending
-     * on given flag. If flag is true, given value will be stored into array, if flag is false and given value is null
+     * Method for storing array in {@code SharedPreferences} in JSON format and getting the same thing out depending on
+     * given flag. If flag is true, given value will be stored into array, if flag is false and given value is null
      * method will return list of messages and if flag is false and value is not null then value is some message which
      * will be deleted from array.
      *
@@ -30,8 +28,8 @@ public class StoringUtils {
      * @param value
      *         value if there needs to be stored
      * @param flag
-     *         if true then given value will be stored in preferences, otherwise list of messages will be given
-     *         or message will be deleted
+     *         if true then given value will be stored in preferences, otherwise list of messages will be given or
+     *         message will be deleted
      * @return list of messages if flag is false and value null, otherwise null
      */
     private static ArrayList<String> stringArrayPref(Context context, String key, String value, boolean flag) {
@@ -176,8 +174,8 @@ public class StoringUtils {
     }
 
     /**
-     * Method for adding address into shared preferences as frequently used one, if address already exists, it won't
-     * be added.
+     * Method for adding address into shared preferences as frequently used one, if address already exists, it won't be
+     * added.
      *
      * @param context
      *         some context
@@ -217,8 +215,8 @@ public class StoringUtils {
     }
 
     /**
-     * Method for getting some destination addresses which are used lately.
-     * If there are no such addresses, then method will return some default ones saved in {@code strings.xml}.
+     * Method for getting some destination addresses which are used lately. If there are no such addresses, then method
+     * will return some default ones saved in {@code strings.xml}.
      *
      * @param context
      *         application context

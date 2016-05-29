@@ -7,17 +7,11 @@ import android.graphics.Color;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.List;
-
+import android.widget.*;
 import zemris.fer.hr.iothingy.R;
 import zemris.fer.hr.iothingy.communication.CommunicationTask;
+
+import java.util.List;
 
 /**
  * Class provides methods which show different dialogs to user and interact with him.
@@ -53,9 +47,8 @@ public class MyDialogs {
 
     /**
      * Method for showing received messages. It also provides respond to those messages just by user clicking on them.
-     * It makes {@code AlertDialog} with list view in which there are messages.
-     * On {@code OnItemClickListener} user can automatically reply to message and on {@code OnItemLongClickListener} user
-     * can see full message format.
+     * It makes {@code AlertDialog} with list view in which there are messages. On {@code OnItemClickListener} user can
+     * automatically reply to message and on {@code OnItemLongClickListener} user can see full message format.
      *
      * @param context
      *         context of some activity
@@ -79,7 +72,8 @@ public class MyDialogs {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                new CommunicationTask(context, msgs.get(position).responseMessage(context.getApplicationContext()), true);
+                new CommunicationTask(context, msgs.get(position).responseMessage(context.getApplicationContext()),
+                        true);
                 StoringUtils.removeReceivedMessage(context.getApplicationContext(), msgs.get(0));
                 dialog.dismiss();
             }

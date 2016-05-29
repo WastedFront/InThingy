@@ -9,17 +9,15 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-
 import com.gdubina.multiprocesspreferences.MultiprocessPreferences;
-
 import zemris.fer.hr.iothingy.R;
 
 /**
- * Service for handling sensors and their data.
- * It uses {@link SensorManager} to register itself for sensor data changes. Class registers for all sensors that are
- * found on current device. List of those sensors can be found <a href="https://developer.android.com/guide/topics/sensors/sensors_overview.html">here</a>
- * When service is going to be destroyed, it unregister itself from {@link SensorManager}.
- * Data is stored in {@link com.gdubina.multiprocesspreferences.MultiprocessPreferences.MultiprocessSharedPreferences}.
+ * Service for handling sensors and their data. It uses {@link SensorManager} to register itself for sensor data
+ * changes. Class registers for all sensors that are found on current device. List of those sensors can be found <a
+ * href="https://developer.android.com/guide/topics/sensors/sensors_overview.html">here</a> When service is going to be
+ * destroyed, it unregister itself from {@link SensorManager}. Data is stored in {@link
+ * com.gdubina.multiprocesspreferences.MultiprocessPreferences.MultiprocessSharedPreferences}.
  */
 public class DeviceSensors extends Service implements SensorEventListener {
 
@@ -69,11 +67,11 @@ public class DeviceSensors extends Service implements SensorEventListener {
     }
 
     /**
-     * Method for getting value for given sensor. In this case sensor values are in float array. That array has 3 elements,
-     * even if sensor has only one data, other elements are 0.0.
-     * Depending on sensor type and its value, this method will return string in following format:
-     * ---  valueName:   value   unit\n---.
-     * List of sensors, their data and units can be found <a href="https://developer.android.com/guide/topics/sensors/sensors_overview.html">here</a>.
+     * Method for getting value for given sensor. In this case sensor values are in float array. That array has 3
+     * elements, even if sensor has only one data, other elements are 0.0. Depending on sensor type and its value, this
+     * method will return string in following format: ---  valueName:   value   unit\n---. List of sensors, their data
+     * and units can be found
+     * <a href="https://developer.android.com/guide/topics/sensors/sensors_overview.html">here</a>.
      *
      * @param sensor
      *         sensor which data will be used to make valid format of values
@@ -117,8 +115,8 @@ public class DeviceSensors extends Service implements SensorEventListener {
 
 
     /**
-     * Method for creating sensor data value. Number of elements in {#link valueNames} shows how much valid number
-     * of values are in {#link values}.
+     * Method for creating sensor data value. Number of elements in {#link valueNames} shows how much valid number of
+     * values are in {#link values}.
      *
      * @param valueNames
      *         array of data names (e.g. x,y,z)

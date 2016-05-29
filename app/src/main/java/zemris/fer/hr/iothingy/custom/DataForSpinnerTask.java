@@ -6,15 +6,13 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.widget.Toast;
-
 import com.guna.libmultispinner.MultiSelectionSpinner;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import zemris.fer.hr.iothingy.R;
 import zemris.fer.hr.iothingy.utils.Constants;
 import zemris.fer.hr.iothingy.utils.StoringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Task for getting all sensors that device has and populate appropriate spinner with their names.

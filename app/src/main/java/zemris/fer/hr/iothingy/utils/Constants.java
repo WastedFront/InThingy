@@ -35,7 +35,8 @@ public class Constants {
     /** Key for getting sensors. */
     public static final String KEY_SENSORS = "FOUND_SENSORS";
     /** Regex for checking destination, format is: IP_ADDR:PORT DEST_THING_NAME */
-    public static final String REGEX_INTERNET_DESTINATION_FORMAT = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})\\s+[a-zA-Z0-9\\_\\-]{8}";
+    public static final String REGEX_INTERNET_DESTINATION_FORMAT =
+            "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})\\s+[a-zA-Z0-9\\_\\-]{8}";
     /** String which is used to split values for received message. */
     public static final String MSG_DELIM = "L;;R";
 }

@@ -14,9 +14,10 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * Spinner with multiple checkbox selections.
- * Source code: <a href="https://github.com/GunaseelanArumaikkannu/MultiSpinner">here</a>
- * Code explanation and tutorial: <a href="http://v4all123.blogspot.hr/2013/09/spinner-with-multiple-selection-in.html>here</a>
+ * Spinner with multiple checkbox selections. Source code:
+ * <a href="https://github.com/GunaseelanArumaikkannu/MultiSpinner">here</a>
+ * Code explanation and tutorial:
+ * <a href="http://v4all123.blogspot.hr/2013/09/spinner-with-multiple-selection-in.html>here</a>
  * All credit goes to  <a href="https://github.com/GunaseelanArumaikkannu">GunaseelanArumaikkannu</a>
  */
 public class MultiSelectionSpinner extends Spinner implements OnMultiChoiceClickListener {

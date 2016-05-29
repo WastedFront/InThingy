@@ -3,6 +3,8 @@ package zemris.fer.hr.iothingy.communication;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
+import zemris.fer.hr.iothingy.R;
+import zemris.fer.hr.iothingy.utils.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -11,17 +13,9 @@ import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-import zemris.fer.hr.iothingy.R;
-import zemris.fer.hr.iothingy.utils.Constants;
-import zemris.fer.hr.iothingy.utils.Message;
-import zemris.fer.hr.iothingy.utils.MyDialogs;
-import zemris.fer.hr.iothingy.utils.MyUtils;
-import zemris.fer.hr.iothingy.utils.ReceivedServerMessage;
-import zemris.fer.hr.iothingy.utils.StoringUtils;
-
 /**
- * Class for handling communication with some destination device. It handles all types of connections (Internet, Wi-Fi, Bluetooth).
- * Currently only communication through Internet is implemented.
+ * Class for handling communication with some destination device. It handles all types of connections (Internet, Wi-Fi,
+ * Bluetooth). Currently only communication through Internet is implemented.
  */
 public class CommunicationTask {
 
@@ -52,7 +46,8 @@ public class CommunicationTask {
                 if (MyUtils.isNetworkAvailable(context)) {
                     (new SendToServerTask()).execute(msg.getDestIP(), "" + msg.getDestPort(), msg.getComSendMessage());
                 } else {
-                    Toast.makeText(context, context.getResources().getText(R.string.error_no_internet_conn), Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, context.getResources().getText(R.string.error_no_internet_conn),
+                            Toast.LENGTH_LONG).show();
                 }
                 break;
             default:
@@ -61,9 +56,8 @@ public class CommunicationTask {
     }
 
     /**
-     * Task for sending message to some cloud using Internet.
-     * It needs 3 parameters send to {#link doInBackground} method in following order:
-     * DESTINATION_IP, DESTINATION_PORT, MESSAGE.
+     * Task for sending message to some cloud using Internet. It needs 3 parameters send to {#link doInBackground}
+     * method in following order: DESTINATION_IP, DESTINATION_PORT, MESSAGE.
      */
     public class SendToServerTask extends AsyncTask<String, String, String> {
 

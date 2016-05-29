@@ -4,18 +4,17 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-
-import java.util.List;
-
 import zemris.fer.hr.iothingy.utils.ReceivedServerMessage;
 import zemris.fer.hr.iothingy.utils.StoringUtils;
 
+import java.util.List;
+
 /**
  * Service for automatic reply for messages that are received. When application communicates with some server, it can
- * get some return message which usually tells which sensor's data are needed. Those messages are stored in
- * {@link  android.content.SharedPreferences}. This service read those messages and then automatically replies to them.
- * If this service is running and there are no such messages, it will go to sleep for 5 seconds.
- * Also there is some pause them between two replies which is about 1 second.
+ * get some return message which usually tells which sensor's data are needed. Those messages are stored in {@link
+ * android.content.SharedPreferences}. This service read those messages and then automatically replies to them. If this
+ * service is running and there are no such messages, it will go to sleep for 5 seconds. Also there is some pause them
+ * between two replies which is about 1 second.
  */
 public class MessageReplyService extends Service {
 
@@ -34,7 +33,8 @@ public class MessageReplyService extends Service {
                     continue;
                 }
             }
-            new CommunicationTask(getApplicationContext(), messages.get(0).responseMessage(getApplicationContext()), false);
+            new CommunicationTask(getApplicationContext(), messages.get(0).responseMessage(getApplicationContext()),
+                    false);
             StoringUtils.removeReceivedMessage(getApplicationContext(), messages.get(0));
             try {
                 Thread.sleep(1000);
