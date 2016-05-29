@@ -55,7 +55,7 @@ public class GPSLocator extends Service {
     @Override
     public void onCreate() {
         initialization();
-        //permission check
+        //permission checking
         boolean locationPerm1 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
         boolean locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
