@@ -1,7 +1,7 @@
-package zemris.fer.hr.inthingy.utils;
+package zemris.fer.hr.iothingy.utils;
 
 /**
- * Class contains all constants that are used in application.
+ * Class contains all constants that are used in application and are needed in multiple classes.
  */
 public class Constants {
     /** Name for GPS sensor. */
@@ -31,11 +31,12 @@ public class Constants {
     /** Key for storing destination adresses. */
     public static final String KEY_DESTINATION_ADDRESSES = "DESTINATION_ADRESSES";
     /** Key for getting received messages. */
-    public static String KEY_RECEIVED_MESSAGES = "RECEIVED_MESSAGES";
+    public static final String KEY_RECEIVED_MESSAGES = "RECEIVED_MESSAGES";
     /** Key for getting sensors. */
-    public static String KEY_SENSORS = "FOUND_SENSORS";
+    public static final String KEY_SENSORS = "FOUND_SENSORS";
     /** Regex for checking destination, format is: IP_ADDR:PORT DEST_THING_NAME */
-    public static final String REGEX_DESTINATION_FORMAT = "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})\\s+[a-zA-Z0-9\\_\\-]+";
+    public static final String REGEX_INTERNET_DESTINATION_FORMAT =
+            "(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})\\s+[a-zA-Z0-9\\_\\-]{8}";
     /** String which is used to split values for received message. */
-    public static final String RECEIVED_MSG_DELIM = "R;M;D";
+    public static final String MSG_DELIM = "L;;R";
 }

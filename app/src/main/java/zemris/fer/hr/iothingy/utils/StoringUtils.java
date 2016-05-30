@@ -1,25 +1,23 @@
-package zemris.fer.hr.inthingy.utils;
+package zemris.fer.hr.iothingy.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-
 import org.json.JSONArray;
+import zemris.fer.hr.iothingy.R;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import zemris.fer.hr.inthingy.R;
-
 /**
- * Class provides method for storing values which need to be persistent.
+ * Class provides methods for storing values which need to be persistent.
  */
 public class StoringUtils {
 
     /**
-     * Method for storing array in {@code SharedPreferences} in JSON format and getting the same thing out depending
-     * on given flag. If flag is true, given value will be stored into array, if flag is false and given value is null
+     * Method for storing array in {@code SharedPreferences} in JSON format and getting the same thing out depending on
+     * given flag. If flag is true, given value will be stored into array, if flag is false and given value is null
      * method will return list of messages and if flag is false and value is not null then value is some message which
      * will be deleted from array.
      *
@@ -30,11 +28,11 @@ public class StoringUtils {
      * @param value
      *         value if there needs to be stored
      * @param flag
-     *         if true then given value will be stored in preferences, otherwise list of messages will be given
-     *         or message will be deleted
+     *         if true then given value will be stored in preferences, otherwise list of messages will be given or
+     *         message will be deleted
      * @return list of messages if flag is false and value null, otherwise null
      */
-    private synchronized static ArrayList<String> stringArrayPref(Context context, String key, String value, boolean flag) {
+    private static ArrayList<String> stringArrayPref(Context context, String key, String value, boolean flag) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String json = prefs.getString(key, null);
         try {
@@ -88,8 +86,8 @@ public class StoringUtils {
      * @param message
      *         new message to add
      */
-    public static void addReceivedMessage(Context context, String message) {
-        stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, message, true);
+    public static void addReceivedMessage(Context context, ReceivedServerMessage message) {
+        stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, message.storeMsgFormat(), true);
     }
 
     /**
@@ -100,8 +98,8 @@ public class StoringUtils {
      * @param message
      *         message which will be removed
      */
-    public static void removeReceivedMessage(Context context, String message) {
-        stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, message, false);
+    public static void removeReceivedMessage(Context context, ReceivedServerMessage message) {
+        stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, message.storeMsgFormat(), false);
     }
 
     /**
@@ -111,8 +109,15 @@ public class StoringUtils {
      *         some context
      * @return list of messages or ull
      */
-    public static List<String> getReceivedMessages(Context context) {
-        return stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, null, false);
+    public static List<ReceivedServerMessage> getReceivedMessages(Context context) {
+        List<String> unparsedMsgs = stringArrayPref(context, Constants.KEY_RECEIVED_MESSAGES, null, false);
+        List<ReceivedServerMessage> messages = new ArrayList<>();
+        if (unparsedMsgs != null) {
+            for (String unpMsg : unparsedMsgs) {
+                messages.add(ReceivedServerMessage.parseStoreMsg(unpMsg));
+            }
+        }
+        return messages;
     }
 
     /**
@@ -169,8 +174,8 @@ public class StoringUtils {
     }
 
     /**
-     * Method for adding address into shared preferences as frequently used one, if address already exists, it won't
-     * be added.
+     * Method for adding address into shared preferences as frequently used one, if address already exists, it won't be
+     * added.
      *
      * @param context
      *         some context
@@ -178,7 +183,7 @@ public class StoringUtils {
      *         address in proper format
      */
     public static boolean addDestinationAddress(Context context, String address) {
-        if (!Pattern.compile(Constants.REGEX_DESTINATION_FORMAT).matcher(address).matches()) {
+        if (!Pattern.compile(Constants.REGEX_INTERNET_DESTINATION_FORMAT).matcher(address).matches()) {
             return false;
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
@@ -210,7 +215,8 @@ public class StoringUtils {
     }
 
     /**
-     * Method for getting some destination addresses which are used lately.
+     * Method for getting some destination addresses which are used lately. If there are no such addresses, then method
+     * will return some default ones saved in {@code strings.xml}.
      *
      * @param context
      *         application context
@@ -219,16 +225,20 @@ public class StoringUtils {
     public static String[] getDestinationAddresses(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String json = prefs.getString(Constants.KEY_DESTINATION_ADDRESSES, null);
-        if (json == null) {
-            return context.getResources().getStringArray(R.array.some_destinations);
-        }
         try {
-            JSONArray jsonArray = new JSONArray(json);
-            String[] messages = new String[jsonArray.length()];
-            for (int i = 0, len = jsonArray.length(); i < len; ++i) {
-                messages[i] = jsonArray.optString(i);
+            if (json == null) {
+                String[] addresses = context.getResources().getStringArray(R.array.some_destinations);
+                for (String address : addresses) {
+                    addDestinationAddress(context, address);
+                }
+                return addresses;
             }
-            return messages;
+            JSONArray jsonArray = new JSONArray(json);
+            String[] addresses = new String[jsonArray.length()];
+            for (int i = 0, len = jsonArray.length(); i < len; ++i) {
+                addresses[i] = jsonArray.optString(i);
+            }
+            return addresses;
         } catch (Exception e) {
             return null;
         }

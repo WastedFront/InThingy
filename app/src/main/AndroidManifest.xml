@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest
-    package="zemris.fer.hr.inthingy"
+    package="zemris.fer.hr.iothingy"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
 
     <application
         android:allowBackup="true"
@@ -17,31 +15,28 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity"
+            android:name="zemris.fer.hr.iothingy.MainActivity"
             android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
         <service
-            android:name=".gps.GPSLocator"
+            android:name="zemris.fer.hr.iothingy.gps.GPSLocator"
             android:exported="false"
             android:process=":gps_locator"/>
         <service
-            android:name=".sensors.DeviceSensors"
+            android:name="zemris.fer.hr.iothingy.sensors.DeviceSensors"
             android:exported="false"
             android:process=":sensor_reader"/>
         <service
-            android:name=".communication.MessageReplyService"
+            android:name="zemris.fer.hr.iothingy.communication.MessageReplyService"
             android:exported="false"
             android:process=":message_reply_service"/>
-
         <provider
             android:name="com.gdubina.multiprocesspreferences.MultiprocessPreferences"
             android:authorities="@string/multiprocess_preferences_authority"
             android:exported="false"/>
     </application>
-
 </manifest>
