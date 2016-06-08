@@ -3,7 +3,7 @@
     <string name="text_device_id">Device ID:</string>
     <string name="text_select_sensors">Select sensors:</string>
     <string name="text_button_check_data">DATA</string>
-    <string name="text_sensor_data_default"> \n \n \n</string>
+    <string name="text_sensor_data_default">\n \n \n</string>
     <string name="prompt_spinner_sensors">Choose sensors</string>
     <string name="prompt_spinner_encryption">Choose encryption</string>
     <string name="prompt_spinner_send_mode">Choose adapter</string>
@@ -11,9 +11,11 @@
     <string name="text_choose_send_mode">Send ViA:</string>
     <string name="text_destination">Enter destination:</string>
     <string name="text_choose_destination">CHOOSE</string>
-    <string name="hint_et_destination_internet">IP:PORT  THING_ID</string>
+    <string name="hint_et_destination_internet">IP:PORT THING_ID</string>
     <string name="text_button_send_message">SEND</string>
-    <string name="multiprocess_preferences_authority" translatable="false">com.gdubina.multiprocesspreferences.PREFFERENCE_AUTHORITY</string>
+    <string name="multiprocess_preferences_authority" translatable="false">
+        com.gdubina.multiprocesspreferences.PREFFERENCE_AUTHORITY
+    </string>
     <string name="text_menu_reply_service">AutoReply</string>
     <string name="name_sensor">Sensor</string>
     <string name="text_autoreply_off">AutoReply service off</string>
@@ -33,12 +35,17 @@
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
     <string name="altitude">Altitude</string>
-    <string name="error_no_location_perms">Application don\'t have permission to access location If you want to get GPS data, please enable permission in Settings</string>
-    <string name="error_cant_get_location">GPS data can\'t be accessed. Please turn GPS or Network ON.\nIf Network is ON please check flag in Settings to use Network for location.</string>
+    <string name="error_no_location_perms">Application don\'t have permission to access location If you want to get GPS
+        data, please enable permission in Settings
+    </string>
+    <string name="error_cant_get_location">GPS data can\'t be accessed. Please turn GPS or Network ON.\nIf Network is ON
+        please check flag in Settings to use Network for location.
+    </string>
     <string name="text_menu_show_messages">MESSAGES</string>
     <string name="text_recevied_messages">Received messages</string>
     <string name="text_message_info_title">Message info</string>
     <string name="success">SUCCESS</string>
+    <string name="errorAutoReplyOnShowMsg">Auto reply service is active. Turn it off to see messages.</string>
     <string-array name="encryption_array">
         <item>NONE</item>
     </string-array>
@@ -46,8 +53,6 @@
         <item>Internet</item>
     </string-array>
     <string-array name="some_destinations">
-        <item>192.168.43.135:25000 THING_12</item>
-        <item>10.0.3.15:25000 THING_44</item>
         <item>10.129.71.41:25000 THING_45</item>
     </string-array>
 </resources>

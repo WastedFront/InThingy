@@ -60,11 +60,6 @@ public class GPSLocator extends Service {
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED;
         boolean locationPerm2 = ActivityCompat.checkSelfPermission(getApplicationContext(),
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED;
-        if (locationPerm1 && locationPerm2) {
-            Toast.makeText(getApplicationContext(), R.string.error_no_location_perms,
-                    Toast.LENGTH_LONG).show();
-            stopSelf();
-        }
         //check which connectivity you can use to get data
         if (isNetworkEnabled) {
             locationManager.requestLocationUpdates(
@@ -74,10 +69,11 @@ public class GPSLocator extends Service {
             locationManager.requestLocationUpdates(
                     LocationManager.GPS_PROVIDER, MIN_TIME_BW_UPDATES, MIN_DISTANCE_CHANGE,
                     gpsLocationListener);
-        }
-
-        //if you can't get data, stop service
-        if ((!isGPSEnabled || locationPerm1 || locationPerm2) && !isNetworkEnabled) {
+        } else if (locationPerm1 && locationPerm2) {
+            Toast.makeText(getApplicationContext(), R.string.error_no_location_perms,
+                    Toast.LENGTH_LONG).show();
+            stopSelf();
+        } else {
             Toast.makeText(getApplicationContext(), R.string.error_cant_get_location,
                     Toast.LENGTH_LONG).show();
             stopSelf();

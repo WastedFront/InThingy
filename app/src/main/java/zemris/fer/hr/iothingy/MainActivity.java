@@ -249,10 +249,14 @@ public class MainActivity extends AppCompatActivity implements MultiSelectionSpi
         if (id == R.id.menuAutoReply) {
             activateAutoReply(item);
         } else if (id == R.id.menuShowMessages) {
-            try {
-                MyDialogs.showReceivedMessages(MainActivity.this);
-            } catch (Exception e) {
-                Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+            if(flagAutoReply) {
+               Toast.makeText(MainActivity.this, R.string.errorAutoReplyOnShowMsg, Toast.LENGTH_LONG).show();
+            }else{
+                try {
+                    MyDialogs.showReceivedMessages(MainActivity.this);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, e.toString(), Toast.LENGTH_LONG).show();
+                }
             }
         }
         return super.onOptionsItemSelected(item);
